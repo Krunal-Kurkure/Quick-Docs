@@ -17,6 +17,7 @@ import PdfCard from '../components/PdfCard';
 import EmptyState from '../components/EmptyState';
 import RenameModal from '../components/RenameModal';
 import { shareMultiplePdfs } from '../services/shareService';
+import { useTheme } from '../context/ThemeContext';
 
 const Home = () => {
   const navigation = useNavigation();
@@ -29,6 +30,9 @@ const Home = () => {
   const [renameTarget, setRenameTarget] = useState(null);
   const [sharing, setSharing] = useState(false);
 
+  // Pull the theme data and toggle function from our Context
+    const { theme } = useTheme();
+    
   const selectedPdfs = useMemo(
     () => pdfs.filter(item => selectedIds.includes(item.id)),
     [pdfs, selectedIds],
@@ -174,53 +178,52 @@ const Home = () => {
   );
 
   return (
-    <SafeAreaView style={styles.safeAreaCont} edges={['top', 'bottom']}>
-      <StatusBar barStyle={'light-content'} backgroundColor="#8A58FF" />
-      <View style={styles.MainContainer}>
-        <View style={styles.header}>
-          <Text style={styles.headerText}>Quick PDF</Text>
+    <SafeAreaView style={[styles.safeAreaCont,{backgroundColor:theme.colors.primary}]} edges={['top']}>
+      <StatusBar barStyle={'light-content'} backgroundColor={theme.colors.primary} />
+      <View style={[styles.header,{backgroundColor:theme.colors.primary}]}>
+        <Text style={styles.headerText}>Quick PDF</Text>
 
-          <View style={styles.headerBtns}>
-            <TouchableOpacity
-              style={[
-                styles.Btn,
-                {
-                  borderColor: actionMode === 'edit' ? '#fff' : '#00000000',
-                },
-              ]}
-              onPress={onEditPress}
-            >
-              <Feather name="edit" size={20} color="#fff" />
-            </TouchableOpacity>
+        <View style={styles.headerBtns}>
+          <TouchableOpacity
+            style={[
+              styles.Btn,
+              {
+                borderColor: actionMode === 'edit' ? '#fff' : '#00000000',
+              },
+            ]}
+            onPress={onEditPress}
+          >
+            <Feather name="edit" size={20} color="#fff" />
+          </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[
-                styles.Btn,
-                {
-                  borderColor: actionMode === 'share' ? '#fff' : '#00000000',
-                },
-              ]}
-              onPress={onSharePress}
-            >
-              <Feather name="share-2" size={20} color="#fff" />
-            </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.Btn,
+              {
+                borderColor: actionMode === 'share' ? '#fff' : '#00000000',
+              },
+            ]}
+            onPress={onSharePress}
+          >
+            <Feather name="share-2" size={20} color="#fff" />
+          </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[
-                styles.Btn,
-                {
-                  borderColor: actionMode === 'delete' ? '#fff' : '#00000000',
-                },
-              ]}
-              onPress={onDeletePress}
-            >
-              <Feather name="trash-2" size={20} color="#fff" />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            style={[
+              styles.Btn,
+              {
+                borderColor: actionMode === 'delete' ? '#fff' : '#00000000',
+              },
+            ]}
+            onPress={onDeletePress}
+          >
+            <Feather name="trash-2" size={20} color="#fff" />
+          </TouchableOpacity>
         </View>
-
+      </View>
+      <View style={[styles.MainContainer,{ backgroundColor: theme.colors.background }]}>
         <View style={styles.mainHeading}>
-          <Text style={styles.mainHeadingText}>PDF Collections</Text>
+          <Text style={[styles.mainHeadingText,{ color: theme.colors.text }]}>PDF Collections</Text>
 
           <View style={styles.mainHeadingBtns}>
             <TouchableOpacity
@@ -230,14 +233,13 @@ const Home = () => {
               <Feather
                 name={viewMode === 'grid' ? 'list' : 'grid'}
                 size={22}
-                color="#000"
+                color={theme.colors.text }
               />
-              
             </TouchableOpacity>
           </View>
         </View>
 
-        <View style={{ flex: 1, paddingHorizontal: 15 }}>
+        <View style={{ flex: 1}}>
           {loading ? (
             <View style={styles.loadingBox}>
               <Text style={styles.emptyText}>Loading PDFs...</Text>
@@ -325,17 +327,15 @@ export default Home;
 const styles = StyleSheet.create({
   safeAreaCont: {
     flex: 1,
-    backgroundColor: '#8A58FF',
   },
   MainContainer: {
     flex: 1,
-    backgroundColor: '#EFEFEF',
+    paddingHorizontal: 15,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#8A58FF',
     paddingVertical: 15,
     paddingHorizontal: 15,
   },
@@ -356,17 +356,15 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   mainHeading: {
-    paddingVertical: 12,
+    paddingVertical:10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 15,
   },
   mainHeadingText: {
     fontSize: 14,
     fontWeight: '700',
     letterSpacing: 0.4,
-    color: '#000000',
   },
   mainHeadingBtns: {
     flexDirection: 'row',
@@ -381,7 +379,7 @@ const styles = StyleSheet.create({
   },
   gap: {
     gap: 12,
-      paddingBottom: 120,
+    paddingBottom: 120,
   },
   row: {
     justifyContent: 'space-between',

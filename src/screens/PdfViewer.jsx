@@ -12,11 +12,15 @@ import Feather from 'react-native-vector-icons/Feather';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Pdf from 'react-native-pdf';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '../context/ThemeContext';
 
 const PdfViewer = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const [loading, setLoading] = useState(true);
+
+    // Pull the theme data and toggle function from our Context
+      const { theme } = useTheme();
 
   const currentPdf = useMemo(
     () => route.params?.pdf || null,
@@ -63,7 +67,7 @@ const PdfViewer = () => {
           {pdfSource ? (
             <Pdf
               source={pdfSource}
-              style={styles.pdf}
+              style={[styles.pdf,{ backgroundColor: theme.colors.background }]}
               enablePaging={false}
               horizontal={false}
               fitPolicy={0}
@@ -71,7 +75,7 @@ const PdfViewer = () => {
               minScale={1.0}
               maxScale={4.0}
               spacing={12}
-              backgroundColor={'#E6E6E6'}
+              backgroundColor={theme.colors.background }
               onLoadComplete={() => setLoading(false)}
               onError={() => setLoading(false)}
               renderActivityIndicator={() => (
@@ -134,7 +138,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   pdf: {
-    backgroundColor: '#E6E6E6',
     paddingHorizontal: 12,
     paddingVertical: 12,
     flex: 1,

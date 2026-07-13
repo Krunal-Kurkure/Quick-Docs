@@ -4,6 +4,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import Pdf from 'react-native-pdf';
 
 import { toFileUri } from '../utils/fileUtils';
+import { useTheme } from '../context/ThemeContext';
 
 const PdfCard = ({
   item,
@@ -15,12 +16,18 @@ const PdfCard = ({
 }) => {
   const isGrid = viewMode === 'grid';
 
+  const { theme } = useTheme();
+
   return (
     <TouchableOpacity
       activeOpacity={0.85}
       onPress={onPress}
       onLongPress={onLongPress}
-      style={[styles.card, isGrid ? styles.gridCard : styles.listCard]}
+      style={[
+        styles.card,
+        isGrid ? styles.gridCard : styles.listCard,
+        { backgroundColor: theme.colors.pdfBg },
+      ]}
     >
       <View
         style={[
@@ -62,13 +69,21 @@ const PdfCard = ({
       <View style={styles.infoBox}>
         <Text
           numberOfLines={2}
-          style={[styles.name, selected && styles.selectedText]}
+          style={[
+            styles.name,
+            selected && styles.selectedText,
+            !selected && { color: theme.colors.text },
+          ]}
         >
           {item.displayName}
         </Text>
         <Text
           numberOfLines={1}
-          style={[styles.date, selected && styles.selectedText]}
+          style={[
+            styles.date,
+            selected && styles.selectedText,
+            !selected && { color: theme.colors.text },
+          ]}
         >
           {item.dateTimeLabel}
         </Text>
@@ -81,7 +96,6 @@ export default PdfCard;
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
     borderRadius: 14,
     overflow: 'hidden',
   },
@@ -138,12 +152,10 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   name: {
-    color: '#000',
     fontSize: 14,
     fontWeight: '700',
   },
   date: {
-    color: '#475569',
     fontSize: 12,
   },
   selectedText: {
