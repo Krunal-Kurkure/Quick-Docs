@@ -1,160 +1,65 @@
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import {Linking} from 'react-native';
-
+import React, {createContext, useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import {
-  copyToAppLibraryIfNeeded,
-  deletePdfFile,
-  listLibraryPdfs,
-  renamePdfFile,
-} from '../services/fileService';
-import {formatPdfDate, getDisplayNameFromFileName, toFileUri} from '../utils/fileUtils';
+  deleteSavedPdf,
+  listSavedPdfs,
+  renameSavedPdf,
+  sharePdfFile,
+  sharePdfFiles,
+} from '../services/pdfLibraryService';
 
 const PdfContext = createContext(null);
-
-const buildItemFromImported = imported => {
-  const path = imported.path || imported.id;
-  const modifiedAtMs = imported.modifiedAt || Date.now();
-
-  return {
-    id: path,
-    path,
-    uri: imported.uri || toFileUri(path),
-    fileName: imported.fileName || `${imported.displayName || 'PDF'}.pdf`,
-    displayName:
-      imported.displayName ||
-      getDisplayNameFromFileName(imported.fileName || path),
-    modifiedAt: new Date(modifiedAtMs).toISOString(),
-    dateTimeLabel: imported.dateTimeLabel || formatPdfDate(new Date(modifiedAtMs)),
-    size: imported.size || 0,
-  };
-};
 
 export const PdfProvider = ({children}) => {
   const [pdfs, setPdfs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [pendingOpenPdf, setPendingOpenPdf] = useState(null);
-  const pdfsRef = useRef([]);
-
-  useEffect(() => {
-    pdfsRef.current = pdfs;
-  }, [pdfs]);
 
   const refreshLibrary = useCallback(async () => {
     setLoading(true);
     try {
-      const items = await listLibraryPdfs();
+      const items = await listSavedPdfs();
       setPdfs(items);
       return items;
-    } catch {
-      setPdfs([]);
-      return [];
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const handleIncomingUrl = useCallback(
-    async url => {
-      if (!url) return;
-
-      const lower = url.toLowerCase();
-      const looksLikePdf =
-        lower.endsWith('.pdf') ||
-        lower.includes('.pdf?') ||
-        lower.startsWith('file://') ||
-        lower.startsWith('content://');
-
-      if (!looksLikePdf) return;
-
-      try {
-        const imported = await copyToAppLibraryIfNeeded(url);
-        if (!imported) return;
-
-        const item = buildItemFromImported(imported);
-        const existing = pdfsRef.current.find(p => p.path === item.path);
-
-        setPdfs(prev => {
-          if (prev.some(p => p.path === item.path)) return prev;
-          return [item, ...prev];
-        });
-
-        setPendingOpenPdf(existing || item);
-      } catch {
-        await refreshLibrary();
-      }
-    },
-    [refreshLibrary],
-  );
-
   useEffect(() => {
     refreshLibrary();
+  }, [refreshLibrary]);
 
-    Linking.getInitialURL().then(url => {
-      if (url) handleIncomingUrl(url);
-    });
+  const renamePdf = useCallback(
+    async (oldPath, newName) => {
+      const newPath = await renameSavedPdf(oldPath, newName);
+      setPdfs(prev =>
+        prev.map(pdf =>
+          pdf.path === oldPath
+            ? {
+                ...pdf,
+                id: newPath,
+                path: newPath,
+                fileName: `${newName}.pdf`,
+                displayName: newName,
+              }
+            : pdf,
+        ),
+      );
+      return newPath;
+    },
+    [],
+  );
 
-    const sub = Linking.addEventListener('url', ({url}) => {
-      handleIncomingUrl(url);
-    });
-
-    return () => sub.remove();
-  }, [handleIncomingUrl, refreshLibrary]);
-
-  const renamePdf = useCallback(async (oldPath, newName) => {
-    const newPath = await renamePdfFile(oldPath, newName);
-
-    setPdfs(prev =>
-      prev.map(pdf =>
-        pdf.path === oldPath
-          ? {
-              ...pdf,
-              id: newPath,
-              path: newPath,
-              uri: toFileUri(newPath),
-              fileName: `${newName}.pdf`,
-              displayName: newName,
-              modifiedAt: new Date().toISOString(),
-              dateTimeLabel: formatPdfDate(new Date()),
-            }
-          : pdf,
-      ),
-    );
-
-    setPendingOpenPdf(prev =>
-      prev && prev.path === oldPath
-        ? {
-            ...prev,
-            id: newPath,
-            path: newPath,
-            uri: toFileUri(newPath),
-            fileName: `${newName}.pdf`,
-            displayName: newName,
-          }
-        : prev,
-    );
-
-    return newPath;
+  const deletePdf = useCallback(async path => {
+    await deleteSavedPdf(path);
+    setPdfs(prev => prev.filter(pdf => pdf.path !== path));
   }, []);
 
-  const removePdfs = useCallback(async (paths = []) => {
-    for (const path of paths) {
-      await deletePdfFile(path);
-    }
-
-    setPdfs(prev => prev.filter(item => !paths.includes(item.path)));
-    setPendingOpenPdf(prev => (prev && paths.includes(prev.path) ? null : prev));
+  const sharePdf = useCallback(async path => {
+    return sharePdfFile(path);
   }, []);
 
-  const consumePendingOpenPdf = useCallback(() => {
-    setPendingOpenPdf(null);
+  const shareMultiple = useCallback(async paths => {
+    return sharePdfFiles(paths);
   }, []);
 
   const value = useMemo(
@@ -163,19 +68,11 @@ export const PdfProvider = ({children}) => {
       loading,
       refreshLibrary,
       renamePdf,
-      removePdfs,
-      pendingOpenPdf,
-      consumePendingOpenPdf,
+      deletePdf,
+      sharePdf,
+      shareMultiple,
     }),
-    [
-      pdfs,
-      loading,
-      refreshLibrary,
-      renamePdf,
-      removePdfs,
-      pendingOpenPdf,
-      consumePendingOpenPdf,
-    ],
+    [pdfs, loading, refreshLibrary, renamePdf, deletePdf, sharePdf, shareMultiple],
   );
 
   return <PdfContext.Provider value={value}>{children}</PdfContext.Provider>;
@@ -183,6 +80,8 @@ export const PdfProvider = ({children}) => {
 
 export const usePdfContext = () => {
   const ctx = useContext(PdfContext);
-  if (!ctx) throw new Error('usePdfContext must be used inside PdfProvider');
+  if (!ctx) {
+    throw new Error('usePdfContext must be used inside PdfProvider');
+  }
   return ctx;
 };

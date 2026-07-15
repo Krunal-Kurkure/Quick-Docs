@@ -12,7 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
 
-import { usePdfContext } from '../context/PdfContext';
+import { useOpenWithPdfContext } from '../context/OpenWithPdfContext';
 import PdfCard from '../components/PdfCard';
 import EmptyState from '../components/EmptyState';
 import RenameModal from '../components/RenameModal';
@@ -21,7 +21,7 @@ import { useTheme } from '../context/ThemeContext';
 
 const Home = () => {
   const navigation = useNavigation();
-  const { pdfs, loading, renamePdf, removePdfs } = usePdfContext();
+  const { openWithPdfs, loading, renamePdf, removePdfs } = useOpenWithPdfContext();
 
   const [viewMode, setViewMode] = useState('grid');
   const [actionMode, setActionMode] = useState('none'); // none | edit | share | delete
@@ -34,8 +34,8 @@ const Home = () => {
     const { theme } = useTheme();
     
   const selectedPdfs = useMemo(
-    () => pdfs.filter(item => selectedIds.includes(item.id)),
-    [pdfs, selectedIds],
+    () => openWithPdfs.filter(item => selectedIds.includes(item.id)),
+    [openWithPdfs, selectedIds],
   );
 
   const clearModes = () => {
@@ -244,11 +244,11 @@ const Home = () => {
             <View style={styles.loadingBox}>
               <Text style={styles.emptyText}>Loading PDFs...</Text>
             </View>
-          ) : pdfs.length === 0 ? (
+          ) : openWithPdfs.length === 0 ? (
             <EmptyState />
           ) : (
             <FlatList
-              data={pdfs}
+              data={openWithPdfs}
               key={viewMode}
               numColumns={viewMode === 'grid' ? 2 : 1}
               renderItem={renderItem}

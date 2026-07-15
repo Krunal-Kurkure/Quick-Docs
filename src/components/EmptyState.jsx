@@ -1,20 +1,19 @@
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
+import { useTheme } from '../context/ThemeContext';
 
-const COLORS = {
-  primary: '#0F172A',
-  secondary: '#475569',
-  muted: '#94A3B8',
-};
+const EmptyState = ({title,subtitle}) => {
 
-const EmptyState = ({message = 'No Pdf Opened Yet'}) => {
+    // Pull the theme data and toggle function from our Context
+      const { theme } = useTheme();
+
   return (
     <View style={styles.container}>
-      <Feather name="file-text" size={44} color={COLORS.muted} />
-      <Text style={styles.title}>{message}</Text>
-      <Text style={styles.subtitle}>
-        Open a PDF from Files, Downloads, WhatsApp, Gmail or any other app and it will appear here.
+      <Feather name="file-text" size={44} color={theme.colors.text} />
+      <Text style={[styles.title,{color:theme.colors.text}]}>{title}</Text>
+      <Text style={[styles.subtitle,{color:theme.colors.subText}]}>
+        {subtitle}
       </Text>
     </View>
   );
@@ -31,13 +30,11 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   title: {
-    color: COLORS.primary,
     fontSize: 16,
     fontWeight: '700',
     textAlign: 'center',
   },
   subtitle: {
-    color: COLORS.secondary,
     fontSize: 13,
     lineHeight: 18,
     textAlign: 'center',

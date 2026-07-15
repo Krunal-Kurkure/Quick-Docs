@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Modal,
   Pressable,
@@ -8,10 +8,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import Feather from 'react-native-vector-icons/Feather';
 import Pdf from 'react-native-pdf';
+import Feather from 'react-native-vector-icons/Feather';
 
-import {toFileUri} from '../utils/fileUtils';
+import { toFileUri } from '../utils/fileUtils';
 
 const COLORS = {
   primary: '#0F172A',
@@ -54,7 +54,7 @@ const RenameModal = ({
           <View style={styles.previewWrap}>
             {previewPath ? (
               <Pdf
-                source={{uri: toFileUri(previewPath), cache: true}}
+                source={{uri: toFileUri(previewPath), cache: false}}
                 page={1}
                 style={styles.previewPdf}
                 fitPolicy={1}
@@ -62,6 +62,7 @@ const RenameModal = ({
                 horizontal={false}
                 enablePaging={false}
                 enableAnnotationRendering={false}
+                onError={error => console.log('Rename preview error:', error)}
               />
             ) : (
               <Feather name="file-text" size={30} color={COLORS.primary} />
@@ -69,7 +70,7 @@ const RenameModal = ({
           </View>
 
           <Text style={styles.previewName} numberOfLines={2}>
-            Name : {currentName}
+            Name: {currentName}
           </Text>
 
           <TextInput
@@ -89,7 +90,8 @@ const RenameModal = ({
 
             <TouchableOpacity
               style={[styles.btn, styles.saveBtn]}
-              onPress={() => onSave(value.trim())}>
+              onPress={() => onSave(value.trim())}
+            >
               <Text style={styles.saveText}>Save</Text>
             </TouchableOpacity>
           </View>
@@ -129,9 +131,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.cardAlt,
     borderRadius: 18,
     overflow: 'hidden',
-    
     alignItems: 'center',
-    borderWidth:1,
+    borderWidth: 1,
     justifyContent: 'center',
   },
   previewPdf: {

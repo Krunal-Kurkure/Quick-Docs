@@ -1,10 +1,10 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Feather from 'react-native-vector-icons/Feather';
 import Pdf from 'react-native-pdf';
+import Feather from 'react-native-vector-icons/Feather';
 
-import { toFileUri } from '../utils/fileUtils';
 import { useTheme } from '../context/ThemeContext';
+import { toFileUri } from '../utils/fileUtils';
 
 const PdfCard = ({
   item,
@@ -15,8 +15,9 @@ const PdfCard = ({
   onLongPress,
 }) => {
   const isGrid = viewMode === 'grid';
+  const {theme} = useTheme();
 
-  const { theme } = useTheme();
+  const sourceUri = toFileUri(item?.path || item?.uri || '');
 
   return (
     <TouchableOpacity
@@ -26,7 +27,7 @@ const PdfCard = ({
       style={[
         styles.card,
         isGrid ? styles.gridCard : styles.listCard,
-        { backgroundColor: theme.colors.pdfBg },
+        {backgroundColor: theme.colors.pdfBg},
       ]}
     >
       <View
@@ -36,9 +37,9 @@ const PdfCard = ({
           selected && styles.cardSelected,
         ]}
       >
-        {item?.path ? (
+        {sourceUri ? (
           <Pdf
-            source={{ uri: toFileUri(item.path), cache: true }}
+            source={{uri: sourceUri, cache: false}}
             page={1}
             style={styles.pdfPreview}
             fitPolicy={1}
@@ -46,6 +47,8 @@ const PdfCard = ({
             horizontal={false}
             enablePaging={false}
             enableAnnotationRendering={false}
+            pointerEvents="none"
+            onError={error => console.log('PdfCard preview error:', error)}
           />
         ) : (
           <Feather
@@ -72,7 +75,7 @@ const PdfCard = ({
           style={[
             styles.name,
             selected && styles.selectedText,
-            !selected && { color: theme.colors.text },
+            !selected && {color: theme.colors.text},
           ]}
         >
           {item.displayName}
@@ -82,10 +85,20 @@ const PdfCard = ({
           style={[
             styles.date,
             selected && styles.selectedText,
-            !selected && { color: theme.colors.text },
+            !selected && {color: theme.colors.text},
           ]}
         >
-          {item.dateTimeLabel}
+          {item.dateTimeLabel || item.createdLabel}
+        </Text>
+        <Text
+          numberOfLines={1}
+          style={[
+            styles.date,
+            selected && styles.selectedText,
+            !selected && {color: theme.colors.text},
+          ]}
+        >
+          {item.sizeLabel || item.sizeBytes || item.size || '0 KB'}
         </Text>
       </View>
     </TouchableOpacity>

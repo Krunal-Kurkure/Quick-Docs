@@ -2,13 +2,15 @@ import RNFS from 'react-native-fs';
 import {NativeModules} from 'react-native';
 import {
   formatPdfDate,
+  formatPdfSize,
   getDisplayNameFromFileName,
   sanitizeFileName,
   stripFileUri,
   toFileUri,
 } from '../utils/fileUtils';
 
-const { EasyPdfImportModule } = NativeModules;
+const {EasyPdfImportModule} = NativeModules;
+
 const APP_LIBRARY_DIR = `${RNFS.ExternalDirectoryPath}/EasyPDF`;
 const SHARE_CACHE_DIR = `${RNFS.CachesDirectoryPath}/EasyPDFShare`;
 
@@ -23,6 +25,8 @@ export const ensureAppDirectory = async () => {
   await ensureDir(APP_LIBRARY_DIR);
 };
 
+export const getImportedLibraryDir = () => APP_LIBRARY_DIR;
+
 export const listLibraryPdfs = async () => {
   await ensureAppDirectory();
 
@@ -30,16 +34,21 @@ export const listLibraryPdfs = async () => {
 
   return items
     .filter(item => item.isFile() && item.name.toLowerCase().endsWith('.pdf'))
-    .map(item => ({
-      id: item.path,
-      path: item.path,
-      uri: toFileUri(item.path),
-      fileName: item.name,
-      displayName: getDisplayNameFromFileName(item.name),
-      modifiedAt: item.mtime ? item.mtime.toISOString() : new Date().toISOString(),
-      dateTimeLabel: formatPdfDate(item.mtime || new Date()),
-      size: item.size || 0,
-    }))
+    .map(item => {
+      const sizeBytes = Number(item.size) || 0;
+      return {
+        id: item.path,
+        path: item.path,
+        uri: toFileUri(item.path),
+        fileName: item.name,
+        displayName: getDisplayNameFromFileName(item.name),
+        modifiedAt: item.mtime ? item.mtime.toISOString() : new Date().toISOString(),
+        dateTimeLabel: formatPdfDate(item.mtime || new Date()),
+        sizeBytes,
+        sizeLabel: formatPdfSize(sizeBytes),
+        source: 'imported',
+      };
+    })
     .sort(
       (a, b) =>
         new Date(b.modifiedAt).getTime() - new Date(a.modifiedAt).getTime(),
@@ -90,13 +99,13 @@ export const copyToAppLibraryIfNeeded = async uri => {
 
 const resolveLocalPath = async uriOrPath => {
   if (!uriOrPath) return null;
-  const clean = stripFileUri(uriOrPath);
+  const clean = stripFileUri(String(uriOrPath).split('?')[0]);
 
   if (clean.startsWith('content://')) {
     try {
       const stat = await RNFS.stat(clean);
       return stat.originalFilepath || clean;
-    } catch (error) {
+    } catch {
       return clean;
     }
   }
@@ -112,7 +121,7 @@ export const createShareableCopy = async path => {
     throw new Error('Invalid PDF path');
   }
 
-  const filename = sourcePath.split('/').pop();
+  const filename = sourcePath.split('/').pop() || `pdf_${Date.now()}.pdf`;
   const sharePath = `${SHARE_CACHE_DIR}/${filename}`;
 
   if (await RNFS.exists(sharePath)) {

@@ -1,24 +1,30 @@
-import 'react-native-gesture-handler';
-import React, { useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {
   NavigationContainer,
   createNavigationContainerRef,
 } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet } from 'react-native';
+import 'react-native-gesture-handler';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
 import Feather from 'react-native-vector-icons/Feather';
 
 // Context & Screens
-import { PdfProvider, usePdfContext } from './src/context/PdfContext';
 import Home from './src/screens/Home';
-import PdfViewer from './src/screens/PdfViewer';
 import Library from './src/screens/Library';
+import PdfViewer from './src/screens/PdfViewer';
 import Setting from './src/screens/Setting';
 
-import { ThemeProvider, useTheme } from './src/context/ThemeContext';
+import ArrangePages from './src/screens/ArrangePages';
+import CreatePdf from './src/screens/CreatePdf';
+import CropImage from './src/screens/CropImage';
 
+import { DraftPdfProvider } from './src/context/DraftPdfContext';
+import { OpenWithPdfProvider, useOpenWithPdfContext } from './src/context/OpenWithPdfContext';
+import { PdfProvider } from './src/context/PdfContext';
+import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 export const navigationRef = createNavigationContainerRef();
@@ -75,7 +81,7 @@ function MainTabs() {
 }
 
 function OpenPdfNavigator({ navReady }) {
-  const { pendingOpenPdf, consumePendingOpenPdf } = usePdfContext();
+  const { pendingOpenPdf, consumePendingOpenPdf } = useOpenWithPdfContext();
 
   useEffect(() => {
     if (!navReady || !pendingOpenPdf || !navigationRef.isReady()) return;
@@ -100,18 +106,25 @@ export default function App() {
   return (
     <GestureHandlerRootView style={styles.container}>
       <ThemeProvider>
-        <PdfProvider>
-          <NavigationContainer
-            ref={navigationRef}
-            onReady={() => setNavReady(true)}
-          >
-            <OpenPdfNavigator navReady={navReady} />
-            <Stack.Navigator screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="MainTabs" component={MainTabs} />
-              <Stack.Screen name="PdfViewer" component={PdfViewer} />
-            </Stack.Navigator>
-          </NavigationContainer>
-        </PdfProvider>
+        <OpenWithPdfProvider>
+          <PdfProvider>
+            <DraftPdfProvider>
+              <NavigationContainer
+                ref={navigationRef}
+                onReady={() => setNavReady(true)}
+              >
+                <OpenPdfNavigator navReady={navReady} />
+                <Stack.Navigator screenOptions={{ headerShown: false }}>
+                  <Stack.Screen name="MainTabs" component={MainTabs} />
+                  <Stack.Screen name="PdfViewer" component={PdfViewer} />
+                  <Stack.Screen name="CreatePdf" component={CreatePdf} />
+                  <Stack.Screen name="ArrangePages" component={ArrangePages} />
+                  <Stack.Screen name="CropImage" component={CropImage} />
+                </Stack.Navigator>
+              </NavigationContainer>
+            </DraftPdfProvider>
+          </PdfProvider>
+        </OpenWithPdfProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );

@@ -8,48 +8,23 @@ export const getFileNameWithoutExt = (nameOrPath = '') => {
   return base.replace(/\.pdf$/i, '');
 };
 
-export const looksLikeGeneratedId = (name = '') => {
-  const text = String(name).trim();
-  if (!text) return false;
-
-  return (
-    /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(
-      text,
-    ) || /^[a-z0-9_-]{16,}$/i.test(text.replace(/\s+/g, ''))
-  );
-};
-
-export const stripGeneratedSuffix = (name = '') => {
-  const text = String(name).trim();
-  const cleaned = text.replace(/\s*[\(\[_-](\d{6,})[\)\]_ -]*$/i, '');
-  return cleaned.trim();
-};
-
-export const getDisplayNameFromFileName = (nameOrPath = '') => {
-  const withoutExt = getFileNameWithoutExt(nameOrPath);
-  const cleaned = stripGeneratedSuffix(withoutExt);
-
-  if (looksLikeGeneratedId(cleaned)) {
-    return 'PDF';
-  }
-
-  return cleaned || withoutExt || 'PDF';
+export const stripFileUri = (uri = '') => {
+  if (!uri) return '';
+  return uri.startsWith('file://') ? uri.replace('file://', '') : uri;
 };
 
 export const toFileUri = (path = '') => {
   if (!path) return '';
-  return path.startsWith('file://') ? path : `file://${path}`;
-};
-
-export const stripFileUri = (uri = '') => {
-  if (!uri) return '';
-  return uri.startsWith('file://') ? uri.replace('file://', '') : uri;
+  const clean = stripFileUri(String(path).split('?')[0]);
+  if (!clean) return '';
+  return encodeURI(clean.startsWith('content://') ? clean : `file://${clean}`);
 };
 
 export const sanitizeFileName = (name = 'PDF') => {
   return String(name)
     .replace(/\.pdf$/i, '')
     .replace(/[\\/:*?"<>|]/g, '')
+    .replace(/\s+/g, ' ')
     .trim() || 'PDF';
 };
 
@@ -64,3 +39,22 @@ export const formatPdfDate = dateInput => {
     minute: '2-digit',
   });
 };
+
+export const formatPdfSize = bytes => {
+  const value = Number(bytes) || 0;
+  if (value <= 0) return '0 KB';
+
+  const kb = 1024;
+  const mb = kb * 1024;
+  const gb = mb * 1024;
+
+  if (value >= gb) return `${(value / gb).toFixed(2)} GB`;
+  if (value >= mb) return `${(value / mb).toFixed(2)} MB`;
+  return `${(value / kb).toFixed(2)} KB`;
+};
+
+export const getDisplayNameFromFileName = (fileName = '') =>
+  getFileNameWithoutExt(fileName) || 'PDF';
+
+export const makeId = () =>
+  `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
