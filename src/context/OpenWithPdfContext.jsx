@@ -21,17 +21,31 @@ import {
   toFileUri,
 } from '../utils/fileUtils';
 
+import RNFS from 'react-native-fs'; // Make sure this is imported
+import { generatePdfThumbnail, getExpectedThumbnailPath } from '../utils/thumbnailUtils';
+
 // Refinement: Renamed context to avoid collision with the custom hook name
 const OpenWithPdfContext = createContext(null);
 
-const buildItemFromImported = imported => {
+const buildItemFromImported = async imported => {
   const path = imported.path || imported.id;
   const modifiedAtMs = imported.modifiedAt || Date.now();
+
+  // 2. CHECK FOR OR GENERATE THUMBNAIL
+  const expectedThumbPath = getExpectedThumbnailPath(path);
+  let thumbExists = await RNFS.exists(expectedThumbPath);
+  let finalThumbUri = thumbExists ? `file://${expectedThumbPath}` : null;
+
+  // If the user just imported this PDF and it has no thumbnail, make it now!
+  if (!thumbExists) {
+    finalThumbUri = await generatePdfThumbnail(path);
+  }
 
   return {
     id: path,
     path,
     uri: imported.uri || toFileUri(path),
+    thumbnailUri:finalThumbUri,
     fileName: imported.fileName || `${imported.displayName || 'PDF'}.pdf`,
     displayName:
       imported.displayName ||
@@ -84,7 +98,7 @@ export const OpenWithPdfProvider = ({ children }) => {
         const imported = await copyToAppLibraryIfNeeded(url);
         if (!imported) return;
 
-        const item = buildItemFromImported(imported);
+        const item = await buildItemFromImported(imported);
         const existing = pdfsRef.current.find(p => p.path === item.path);
 
         setPdfs(prev => {
@@ -124,6 +138,9 @@ export const OpenWithPdfProvider = ({ children }) => {
   const renamePdf = useCallback(async (oldPath, newName) => {
     const newPath = await renamePdfFile(oldPath, newName);
 
+    // Calculate the new thumbnail path for the UI state
+    const newThumbPath = getExpectedThumbnailPath(newPath);
+
     setPdfs(prev =>
       prev.map(pdf =>
         pdf.path === oldPath
@@ -132,6 +149,7 @@ export const OpenWithPdfProvider = ({ children }) => {
               id: newPath,
               path: newPath,
               uri: toFileUri(newPath),
+              thumbnailUri: `file://${newThumbPath}`,
               fileName: `${newName}.pdf`,
               displayName: newName,
               modifiedAt: new Date().toISOString(),
@@ -157,14 +175,27 @@ export const OpenWithPdfProvider = ({ children }) => {
     return newPath;
   }, []);
 
-  const removePdfs = useCallback(async (paths = []) => {
+ const removePdfs = useCallback(async (paths = []) => {
+    // Keep track of which files ACTUALLY got deleted
+    const successfullyDeleted = [];
+
     for (const path of paths) {
-      await deletePdfFile(path);
+      try {
+        // 1. Physically delete the PDF and its Thumbnail from the device storage
+        await deletePdfFile(path); 
+        
+        // 2. Mark it as a success
+        successfullyDeleted.push(path);
+      } catch (error) {
+        console.log(`Failed to delete file and thumbnail for: ${path}`, error);
+      }
     }
 
-    setPdfs(prev => prev.filter(item => !paths.includes(item.path)));
+    // 3. Update the UI to strictly remove ONLY the ones that succeeded
+    setPdfs(prev => prev.filter(item => !successfullyDeleted.includes(item.path)));
+    
     setPendingOpenPdf(prev =>
-      prev && paths.includes(prev.path) ? null : prev,
+      prev && successfullyDeleted.includes(prev.path) ? null : prev,
     );
   }, []);
 

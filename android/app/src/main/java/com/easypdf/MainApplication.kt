@@ -7,6 +7,7 @@ import com.facebook.react.ReactHost
 import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.easypdf.easypdfimport.EasyPdfImportPackage
+import com.easypdf.pdfthumbnail.PdfThumbnailPackage
 
 class MainApplication : Application(), ReactApplication {
 
@@ -15,6 +16,7 @@ class MainApplication : Application(), ReactApplication {
             context = applicationContext,
             packageList = PackageList(this).packages.apply {
                 add(EasyPdfImportPackage())
+                add(PdfThumbnailPackage())
             },
         )
     }

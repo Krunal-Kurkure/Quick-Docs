@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Alert,
   FlatList,
@@ -8,23 +8,28 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
-import {useTheme} from '../context/ThemeContext';
-import {usePdfContext} from '../context/PdfContext';
+import { useTheme } from '../context/ThemeContext';
+import { usePdfContext } from '../context/PdfContext';
 import SavePdfModal from '../components/SavePdfModal';
+import PdfCard from '../components/PdfCard';
+import EmptyState from '../components/EmptyState';
+import RenameModal from '../components/RenameModal';
 
 const Library = () => {
   const navigation = useNavigation();
-  const {theme} = useTheme();
-  const {pdfs, loading, refreshLibrary, renamePdf, deletePdf, shareMultiple} = usePdfContext();
+  const { theme, viewMode, toggleGridList } = useTheme();
+  const { pdfs, loading, refreshLibrary, renamePdf, deletePdf, shareMultiple } =
+    usePdfContext();
 
   const [actionMode, setActionMode] = useState('none'); // none | edit | share | delete
   const [selectedIds, setSelectedIds] = useState([]);
   const [renameVisible, setRenameVisible] = useState(false);
   const [renameTarget, setRenameTarget] = useState(null);
+  const [sharing, setSharing] = useState(false);
 
   const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
   const selectedPdfs = useMemo(
@@ -37,11 +42,12 @@ const Library = () => {
     setSelectedIds([]);
     setRenameTarget(null);
     setRenameVisible(false);
+    setSharing(false);
   };
 
   const onPressPdf = item => {
     if (actionMode === 'none') {
-      navigation.navigate('PdfViewer', {pdf: item});
+      navigation.navigate('PdfViewer', { pdf: item });
       return;
     }
 
@@ -54,14 +60,47 @@ const Library = () => {
 
     if (actionMode === 'share' || actionMode === 'delete') {
       setSelectedIds(prev =>
-        prev.includes(item.id) ? prev.filter(x => x !== item.id) : [...prev, item.id],
+        prev.includes(item.id)
+          ? prev.filter(x => x !== item.id)
+          : [...prev, item.id],
       );
     }
   };
 
-  const onEdit = () => setActionMode(prev => (prev === 'edit' ? 'none' : 'edit'));
-  const onShare = () => setActionMode(prev => (prev === 'share' ? 'none' : 'share'));
-  const onDelete = () => setActionMode(prev => (prev === 'delete' ? 'none' : 'delete'));
+  const onEdit = () => {
+    if (actionMode === 'edit') {
+      clearModes();
+      return;
+    }
+    setActionMode('edit');
+    setSelectedIds([]);
+    setRenameVisible(false);
+    setRenameTarget(null);
+    setSharing(false);
+  };
+
+  const onShare = () => {
+    if (actionMode === 'share') {
+      clearModes();
+      return;
+    }
+    setActionMode('share');
+    setSelectedIds([]);
+    setRenameVisible(false);
+    setRenameTarget(null);
+    setSharing(false);
+  };
+  const onDelete = () => {
+    if (actionMode === 'delete') {
+      clearModes();
+      return;
+    }
+    setActionMode('delete');
+    setSelectedIds([]);
+    setRenameVisible(false);
+    setRenameTarget(null);
+    setSharing(false);
+  };
 
   const handleRename = async newName => {
     if (!renameTarget || !newName) return;
@@ -71,6 +110,8 @@ const Library = () => {
   };
 
   const handleShare = async () => {
+    if (sharing) return;
+
     if (!selectedPdfs.length) {
       Alert.alert('Select PDF', 'Please select one or more PDFs to share.');
       return;
@@ -90,7 +131,7 @@ const Library = () => {
     }
 
     Alert.alert('Delete PDFs', 'Delete the selected PDF(s) from EasyPDF?', [
-      {text: 'Cancel', style: 'cancel'},
+      { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete',
         style: 'destructive',
@@ -105,75 +146,124 @@ const Library = () => {
     ]);
   };
 
-  return (
-    <SafeAreaView style={[styles.safeAreaCont, {backgroundColor: theme.colors.primary}]} edges={['top']}>
-      <StatusBar barStyle="light-content" backgroundColor={theme.colors.primary} />
-      <View style={[styles.MainContainer, {backgroundColor: theme.colors.background}]}>
-        <View style={[styles.header, {backgroundColor: theme.colors.primary}]}>
-          <Text style={styles.headerText}>Created PDFs</Text>
+  const renderItem = ({ item }) => (
+    <PdfCard
+      item={item}
+      viewMode={viewMode}
+      selected={selectedIds.includes(item.id)}
+      selectionVisible={actionMode !== 'none'}
+      onPress={() => onPressPdf(item)}
+      onLongPress={() => {
+        setActionMode('edit');
+        setSelectedIds([item.id]);
+        setRenameTarget(item);
+        setRenameVisible(true);
+      }}
+    />
+  );
 
-          <View style={styles.headerBtns}>
-            <TouchableOpacity style={styles.Btn} onPress={onEdit}>
-              <Feather name="edit-2" size={20} color="#fff" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.Btn} onPress={onShare}>
-              <Feather name="share-2" size={20} color="#fff" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.Btn} onPress={onDelete}>
-              <Feather name="trash-2" size={20} color="#fff" />
+  return (
+    <SafeAreaView
+      style={[styles.safeAreaCont, { backgroundColor: theme.colors.primary }]}
+      edges={['top']}
+    >
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor={theme.colors.primary}
+      />
+      <View style={[styles.header, { backgroundColor: theme.colors.primary }]}>
+        <Text style={styles.headerText}>Created PDFs</Text>
+
+        <View style={styles.headerBtns}>
+          <TouchableOpacity
+            style={[
+              styles.Btn,
+              {
+                borderColor: actionMode === 'edit' ? '#fff' : '#00000000',
+              },
+            ]}
+            onPress={onEdit}
+          >
+            <Feather name="edit" size={20} color="#fff" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.Btn,
+              {
+                borderColor: actionMode === 'share' ? '#fff' : '#00000000',
+              },
+            ]}
+            onPress={onShare}
+          >
+            <Feather name="share-2" size={20} color="#fff" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.Btn,
+              {
+                borderColor: actionMode === 'delete' ? '#fff' : '#00000000',
+              },
+            ]}
+            onPress={onDelete}
+          >
+            <Feather name="trash-2" size={20} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      </View>
+      <View
+        style={[
+          styles.MainContainer,
+          { backgroundColor: theme.colors.background },
+        ]}
+      >
+        <View style={styles.mainHeading}>
+          <Text style={[styles.mainHeadingText, { color: theme.colors.text }]}>
+            PDF Collections
+          </Text>
+
+          <View style={styles.mainHeadingBtns}>
+            <TouchableOpacity
+              style={styles.mainHeadBtn}
+              onPress={toggleGridList}
+            >
+              <Feather
+                name={viewMode === 'grid' ? 'list' : 'grid'}
+                size={22}
+                color={theme.colors.text}
+              />
             </TouchableOpacity>
           </View>
         </View>
 
-        <View style={styles.listWrap}>
+        <View style={{ flex: 1 }}>
           {loading ? (
-            <Text style={styles.emptyText}>Loading PDFs...</Text>
+            <View style={styles.loadingBox}>
+              <Text style={styles.emptyText}>Loading PDFs...</Text>
+            </View>
+          ) : pdfs.length === 0 ? (
+            <EmptyState />
           ) : (
             <FlatList
               data={pdfs}
+              key={viewMode}
+              numColumns={viewMode === 'grid' ? 2 : 1}
+              renderItem={renderItem}
               keyExtractor={item => item.id}
-              contentContainerStyle={pdfs.length === 0 ? styles.emptyList : styles.listContent}
-              renderItem={({item}) => (
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  onPress={() => onPressPdf(item)}
-                  style={[
-                    styles.row,
-                    selectedSet.has(item.id) && styles.rowSelected,
-                  ]}>
-                  <View style={styles.rowIcon}>
-                    <Feather
-                      name={selectedSet.has(item.id) ? 'check-circle' : 'file-text'}
-                      size={22}
-                      color={selectedSet.has(item.id) ? '#EF4444' : theme.colors.primary}
-                    />
-                  </View>
-
-                  <View style={styles.rowBody}>
-                    <Text
-                      numberOfLines={1}
-                      style={[
-                        styles.rowTitle,
-                        selectedSet.has(item.id) && styles.rowTitleSelected,
-                      ]}>
-                      {item.displayName}
-                    </Text>
-                    <Text style={styles.rowDate}>{item.createdLabel}</Text>
-                  </View>
-                </TouchableOpacity>
-              )}
-              ListEmptyComponent={
-                <View style={styles.emptyBox}>
-                  <Text style={styles.emptyText}>No PDF created yet.</Text>
-                </View>
+              columnWrapperStyle={viewMode === 'grid' ? styles.row : null}
+              contentContainerStyle={
+                viewMode === 'grid' ? styles.listContent : styles.gap
               }
+              showsVerticalScrollIndicator={false}
             />
           )}
         </View>
 
         <TouchableOpacity
-          style={[styles.fab, {backgroundColor: theme.colors.primary}]}
-          onPress={() => navigation.navigate('CreatePdf')}>
+          style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+          onPress={() => navigation.navigate('CreatePdf')}
+        >
           <Feather name="plus" size={28} color="#fff" />
         </TouchableOpacity>
 
@@ -182,8 +272,16 @@ const Library = () => {
             <TouchableOpacity style={styles.bottomBtn} onPress={clearModes}>
               <Text style={styles.bottomBtnText}>Cancel</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.bottomBtn, styles.bottomPrimary]} onPress={handleShare}>
-              <Text style={styles.bottomPrimaryText}>Share ({selectedIds.length})</Text>
+            <TouchableOpacity
+              style={[styles.bottomBtn, styles.bottomDanger]}
+              onPress={handleShare}
+              disabled={sharing}
+            >
+              <Text style={styles.bottomPrimaryText}>
+                {sharing
+                  ? 'Sharing...'
+                  : `Share Selected (${selectedIds.length})`}
+              </Text>
             </TouchableOpacity>
           </View>
         ) : null}
@@ -193,15 +291,21 @@ const Library = () => {
             <TouchableOpacity style={styles.bottomBtn} onPress={clearModes}>
               <Text style={styles.bottomBtnText}>Cancel</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.bottomBtn, styles.bottomDanger]} onPress={handleDelete}>
-              <Text style={styles.bottomPrimaryText}>Delete ({selectedIds.length})</Text>
+            <TouchableOpacity
+              style={[styles.bottomBtn, styles.bottomDanger]}
+              onPress={handleDelete}
+            >
+              <Text style={styles.bottomPrimaryText}>
+                Remove PDF ({selectedIds.length})
+              </Text>
             </TouchableOpacity>
           </View>
         ) : null}
 
-        <SavePdfModal
+        <RenameModal
           visible={renameVisible}
-          defaultName={renameTarget?.displayName || 'PDF'}
+          currentName={renameTarget?.displayName || 'PDF'}
+         thumbnailUri={renameTarget?.thumbnailUri || null}
           onClose={() => {
             setRenameVisible(false);
             setRenameTarget(null);
@@ -223,6 +327,7 @@ const styles = StyleSheet.create({
   },
   MainContainer: {
     flex: 1,
+    paddingHorizontal: 15,
   },
   header: {
     flexDirection: 'row',
@@ -248,40 +353,57 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'transparent',
   },
+
+  mainHeading: {
+    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  mainHeadingText: {
+    fontSize: 14,
+    fontWeight: '700',
+    letterSpacing: 0.4,
+  },
+  mainHeadingBtns: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  mainHeadBtn: {
+    padding: 3,
+  },
   listWrap: {
     flex: 1,
     paddingHorizontal: 15,
     paddingTop: 12,
   },
-  listContent: {
-    paddingBottom: 120,
-    gap: 12,
-  },
   emptyList: {
     flexGrow: 1,
     justifyContent: 'center',
   },
-  emptyBox: {
+  listContent: {
+    paddingBottom: 120,
+  },
+  gap: {
+    gap: 12,
+    paddingBottom: 120,
+  },
+  row: {
+    justifyContent: 'space-between',
+    marginBottom: 13,
+    gap: 15,
+  },
+  loadingBox: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 40,
   },
   emptyText: {
     color: '#475569',
     fontSize: 14,
-    textAlign: 'center',
   },
-  row: {
-    flexDirection: 'row',
-    gap: 12,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    padding: 14,
-    alignItems: 'center',
-  },
+
   rowSelected: {
     borderColor: '#EF4444',
     backgroundColor: '#FEF2F2',

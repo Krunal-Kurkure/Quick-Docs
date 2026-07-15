@@ -1,15 +1,27 @@
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
+import { NativeModules } from 'react-native'; // <-- ADDED
 import {
   formatPdfDate,
+  formatPdfSize,
   getFileNameWithoutExt,
   sanitizeFileName,
   stripFileUri,
   toFileUri,
 } from '../utils/fileUtils';
 
+// --- ADDED: Destructure the new native thumbnail module ---
+const { PdfThumbnailMaker } = NativeModules;
+
 const LIBRARY_DIR = `${RNFS.DocumentDirectoryPath}/CreatedEasyPDF`;
 const SHARE_DIR = `${RNFS.CachesDirectoryPath}/CreatedEasyPDFShare`;
+
+// --- ADDED: Helper to predict where the Kotlin module saves the thumbnail ---
+const getExpectedThumbnailPath = (pdfPath) => {
+  const cleanPath = stripFileUri(String(pdfPath).split('?')[0]);
+  const fileNameWithoutExt = cleanPath.split('/').pop().replace(/\.pdf$/i, '');
+  return `${RNFS.DocumentDirectoryPath}/PdfThumbnails/${fileNameWithoutExt}.jpg`;
+};
 
 const ensureDir = async dir => {
   const exists = await RNFS.exists(dir);
@@ -45,19 +57,42 @@ export const listSavedPdfs = async () => {
   await ensureLibraryDir();
 
   const items = await RNFS.readDir(LIBRARY_DIR);
-  return items
-    .filter(item => item.isFile() && item.name.toLowerCase().endsWith('.pdf'))
-    .map(item => ({
+  const pdfFiles = items.filter(item => item.isFile() && item.name.toLowerCase().endsWith('.pdf'));
+
+  // 1. Use Promise.all to map over files asynchronously (required for native thumbnail check)
+  const formattedPdfs = await Promise.all(pdfFiles.map(async (item) => {
+     const sizeBytes = Number(item.size) || 0;
+
+    // --- THUMBNAIL GENERATION LOGIC ---
+    const thumbPath = getExpectedThumbnailPath(item.path);
+    let thumbExists = await RNFS.exists(thumbPath);
+    let thumbnailUri = thumbExists ? `file://${thumbPath}` : null;
+
+    // Generate native thumbnail if it doesn't exist
+    if (!thumbExists && PdfThumbnailMaker) {
+      try {
+        thumbnailUri = await PdfThumbnailMaker.generateThumbnail(item.path);
+      } catch (error) {
+        console.log('Failed to generate thumbnail:', error);
+      }
+    }
+    // ----------------------------------
+
+    return {
       id: item.path,
       path: item.path,
       uri: toFileUri(item.path),
+      thumbnailUri, // <-- Attached to the data object here!
       fileName: item.name,
       displayName: getFileNameWithoutExt(item.name),
       createdAt: item.mtime ? item.mtime.toISOString() : new Date().toISOString(),
       createdLabel: formatPdfDate(item.mtime || new Date()),
-      size: item.size || 0,
-    }))
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      sizeBytes,
+            sizeLabel: formatPdfSize(sizeBytes),
+    };
+  }));
+
+  return formattedPdfs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 };
 
 export const savePdfToLibrary = async (sourcePath, preferredName = 'PDF') => {
@@ -77,6 +112,15 @@ export const savePdfToLibrary = async (sourcePath, preferredName = 'PDF') => {
 
   if (sourceExists && isTempOutsideLibrary) {
     await RNFS.unlink(cleanSource).catch(() => {});
+  }
+
+  // Generate thumbnail immediately upon saving for instant UI loading
+  if (PdfThumbnailMaker) {
+    try {
+      await PdfThumbnailMaker.generateThumbnail(destPath);
+    } catch (e) {
+      console.log('Thumb error on save:', e);
+    }
   }
 
   return destPath;
@@ -102,6 +146,16 @@ export const renameSavedPdf = async (oldPath, newDisplayName) => {
   }
 
   await RNFS.moveFile(cleanOld, target);
+
+  // --- THUMBNAIL RENAME LOGIC ---
+  const oldThumbPath = getExpectedThumbnailPath(cleanOld);
+  const newThumbPath = getExpectedThumbnailPath(target);
+
+  if (await RNFS.exists(oldThumbPath)) {
+    await RNFS.moveFile(oldThumbPath, newThumbPath);
+  }
+  // ------------------------------
+
   return target;
 };
 
@@ -110,6 +164,14 @@ export const deleteSavedPdf = async path => {
   if (await RNFS.exists(clean)) {
     await RNFS.unlink(clean);
   }
+
+  // --- THUMBNAIL DELETE LOGIC ---
+  const thumbPath = getExpectedThumbnailPath(clean);
+  if (await RNFS.exists(thumbPath)) {
+    await RNFS.unlink(thumbPath);
+  }
+  // ------------------------------
+
   return true;
 };
 

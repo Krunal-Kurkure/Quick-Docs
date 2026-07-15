@@ -23,7 +23,6 @@ const Home = () => {
   const navigation = useNavigation();
   const { openWithPdfs, loading, renamePdf, removePdfs } = useOpenWithPdfContext();
 
-  const [viewMode, setViewMode] = useState('grid');
   const [actionMode, setActionMode] = useState('none'); // none | edit | share | delete
   const [selectedIds, setSelectedIds] = useState([]);
   const [renameVisible, setRenameVisible] = useState(false);
@@ -31,7 +30,7 @@ const Home = () => {
   const [sharing, setSharing] = useState(false);
 
   // Pull the theme data and toggle function from our Context
-    const { theme } = useTheme();
+    const { theme,viewMode,toggleGridList } = useTheme();
     
   const selectedPdfs = useMemo(
     () => openWithPdfs.filter(item => selectedIds.includes(item.id)),
@@ -46,9 +45,7 @@ const Home = () => {
     setSharing(false);
   };
 
-  const toggleGridList = () => {
-    setViewMode(prev => (prev === 'grid' ? 'list' : 'grid'));
-  };
+
 
   const onEditPress = () => {
     if (actionMode === 'edit') {
@@ -307,8 +304,8 @@ const Home = () => {
 
         <RenameModal
           visible={renameVisible}
-          currentName={renameTarget?.displayName || ''}
-          previewPath={renameTarget?.path || ''}
+          currentName={renameTarget?.displayName || 'PDF'}
+         thumbnailUri={renameTarget?.thumbnailUri || null}
           onClose={() => {
             setRenameVisible(false);
             setRenameTarget(null);

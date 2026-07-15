@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+  Image,
   Modal,
   Pressable,
   StyleSheet,
@@ -30,7 +31,7 @@ const SPACING = {
 const RenameModal = ({
   visible,
   currentName = '',
-  previewPath = '',
+  thumbnailUri,
   onClose,
   onSave,
 }) => {
@@ -43,7 +44,12 @@ const RenameModal = ({
   }, [visible, currentName]);
 
   return (
-    <Modal transparent visible={visible} animationType="fade" onRequestClose={onClose}>
+    <Modal
+      transparent
+      visible={visible}
+      animationType="fade"
+      onRequestClose={onClose}
+    >
       <Pressable style={styles.backdrop} onPress={onClose}>
         <Pressable style={styles.sheet} onPress={() => {}}>
           <View style={styles.topRow}>
@@ -52,17 +58,11 @@ const RenameModal = ({
           </View>
 
           <View style={styles.previewWrap}>
-            {previewPath ? (
-              <Pdf
-                source={{uri: toFileUri(previewPath), cache: false}}
-                page={1}
+            {thumbnailUri ? (
+              <Image
+                source={{ uri: thumbnailUri }}
                 style={styles.previewPdf}
-                fitPolicy={1}
-                spacing={0}
-                horizontal={false}
-                enablePaging={false}
-                enableAnnotationRendering={false}
-                onError={error => console.log('Rename preview error:', error)}
+                resizeMode="contain"
               />
             ) : (
               <Feather name="file-text" size={30} color={COLORS.primary} />
@@ -84,7 +84,10 @@ const RenameModal = ({
           />
 
           <View style={styles.actions}>
-            <TouchableOpacity style={[styles.btn, styles.cancelBtn]} onPress={onClose}>
+            <TouchableOpacity
+              style={[styles.btn, styles.cancelBtn]}
+              onPress={onClose}
+            >
               <Text style={styles.cancelText}>Cancel</Text>
             </TouchableOpacity>
 

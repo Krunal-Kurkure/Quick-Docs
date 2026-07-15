@@ -10,6 +10,7 @@ const THEME_STORAGE_KEY = '@app_theme_mode';
 // 2. Create the Provider Component
 export const ThemeProvider = ({ children }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [viewMode, setViewMode] = useState('grid');
 
   // Load the saved theme from AsyncStorage when the app starts
   useEffect(() => {
@@ -27,6 +28,10 @@ export const ThemeProvider = ({ children }) => {
 
     loadSavedTheme();
   }, []);
+
+  const toggleGridList = () => {
+    setViewMode(prev => (prev === 'grid' ? 'list' : 'grid'));
+  };
 
   // Toggle the theme and save the new preference to AsyncStorage
   const toggleTheme = async () => {
@@ -48,7 +53,7 @@ export const ThemeProvider = ({ children }) => {
       text: isDarkMode ? '#ffffffda' : '#000000',
       subText: isDarkMode ? '#A0A0A0' : '#8E8E93',
       border: isDarkMode ? '#333333' : '#E5E5EA',
-      primary: '#8A58FF', 
+      primary: '#8A58FF',
       tabActTint: isDarkMode ? '#ffffffda' : '#8A58FF',
       tabInactTint: isDarkMode ? '#5e5e5e' : '#b5b5b5',
       pdfBg: isDarkMode ? '#323232' : '#ffffff',
@@ -56,7 +61,16 @@ export const ThemeProvider = ({ children }) => {
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, isDarkMode }}>
+    <ThemeContext.Provider
+      value={{
+        theme,
+        toggleTheme,
+        isDarkMode,
+        viewMode,
+        toggleGridList,
+        setViewMode,
+      }}
+    >
       {children}
     </ThemeContext.Provider>
   );

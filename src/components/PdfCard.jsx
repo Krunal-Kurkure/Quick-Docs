@@ -1,10 +1,8 @@
-import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Pdf from 'react-native-pdf';
+import React, { memo } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 
 import { useTheme } from '../context/ThemeContext';
-import { toFileUri } from '../utils/fileUtils';
 
 const PdfCard = ({
   item,
@@ -15,9 +13,7 @@ const PdfCard = ({
   onLongPress,
 }) => {
   const isGrid = viewMode === 'grid';
-  const {theme} = useTheme();
-
-  const sourceUri = toFileUri(item?.path || item?.uri || '');
+  const { theme } = useTheme();
 
   return (
     <TouchableOpacity
@@ -27,7 +23,7 @@ const PdfCard = ({
       style={[
         styles.card,
         isGrid ? styles.gridCard : styles.listCard,
-        {backgroundColor: theme.colors.pdfBg},
+        { backgroundColor: theme.colors.pdfBg },
       ]}
     >
       <View
@@ -37,19 +33,19 @@ const PdfCard = ({
           selected && styles.cardSelected,
         ]}
       >
-        {sourceUri ? (
-          <Pdf
-            source={{uri: sourceUri, cache: false}}
-            page={1}
-            style={styles.pdfPreview}
-            fitPolicy={1}
-            spacing={0}
-            horizontal={false}
-            enablePaging={false}
-            enableAnnotationRendering={false}
-            pointerEvents="none"
-            onError={error => console.log('PdfCard preview error:', error)}
-          />
+        {/* CHECK FOR NATIVE THUMBNAIL */}
+        {item.thumbnailUri ? (
+          <>
+            <Image
+              source={{ uri: item.thumbnailUri }}
+              style={styles.pdfPreview}
+              resizeMode="cover"
+            />
+
+            {isGrid && (
+              <Text style={styles.sizeBadgeGird}>{item.sizeLabel}</Text>
+            )}
+          </>
         ) : (
           <Feather
             name="file-text"
@@ -75,7 +71,7 @@ const PdfCard = ({
           style={[
             styles.name,
             selected && styles.selectedText,
-            !selected && {color: theme.colors.text},
+            !selected && { color: theme.colors.text },
           ]}
         >
           {item.displayName}
@@ -85,27 +81,26 @@ const PdfCard = ({
           style={[
             styles.date,
             selected && styles.selectedText,
-            !selected && {color: theme.colors.text},
+            !selected && { color: theme.colors.text },
           ]}
         >
           {item.dateTimeLabel || item.createdLabel}
         </Text>
-        <Text
-          numberOfLines={1}
-          style={[
-            styles.date,
-            selected && styles.selectedText,
-            !selected && {color: theme.colors.text},
-          ]}
-        >
-          {item.sizeLabel || item.sizeBytes || item.size || '0 KB'}
-        </Text>
+        {!isGrid && <Text style={styles.sizeBadgeList}>{item.sizeLabel}</Text>}
       </View>
     </TouchableOpacity>
   );
 };
 
-export default PdfCard;
+export default memo(PdfCard, (prevProps, nextProps) => {
+  return (
+    prevProps.item.thumbnailUri === nextProps.item.thumbnailUri &&
+    prevProps.item.displayName === nextProps.item.displayName &&
+    prevProps.selected === nextProps.selected &&
+    prevProps.selectionVisible === nextProps.selectionVisible &&
+    prevProps.viewMode === nextProps.viewMode
+  );
+});
 
 const styles = StyleSheet.create({
   card: {
@@ -154,6 +149,28 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     backgroundColor: '#fff',
+  },
+  sizeBadgeGird: {
+    position: 'absolute',
+    bottom: 5,
+    right: 4,
+    backgroundColor: '#8A58FF',
+    color: '#fff',
+    borderRadius: 5,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  sizeBadgeList: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#8A58FF',
+    color: '#fff',
+    borderRadius: 5,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    fontSize: 10,
+    fontWeight: '600',
   },
   badge: {
     position: 'absolute',
