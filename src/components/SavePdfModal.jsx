@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Modal,
   Pressable,
@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 
-const SavePdfModal = ({visible, defaultName = '', onClose, onSave}) => {
+const SavePdfModal = ({ visible, defaultName = '', onClose, onSave }) => {
   const [value, setValue] = useState(defaultName);
 
   useEffect(() => {
@@ -17,7 +17,12 @@ const SavePdfModal = ({visible, defaultName = '', onClose, onSave}) => {
   }, [visible, defaultName]);
 
   return (
-    <Modal transparent visible={visible} animationType="fade" onRequestClose={onClose}>
+    <Modal
+      transparent
+      visible={visible}
+      animationType="fade"
+      onRequestClose={onClose}
+    >
       <Pressable style={styles.backdrop} onPress={onClose}>
         <Pressable style={styles.sheet} onPress={() => {}}>
           <Text style={styles.title}>Save PDF</Text>
@@ -32,13 +37,17 @@ const SavePdfModal = ({visible, defaultName = '', onClose, onSave}) => {
           />
 
           <View style={styles.row}>
-            <TouchableOpacity style={[styles.btn, styles.cancel]} onPress={onClose}>
+            <TouchableOpacity
+              style={[styles.btn, styles.cancel]}
+              onPress={onClose}
+            >
               <Text style={styles.cancelText}>Cancel</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[styles.btn, styles.save]}
-              onPress={() => onSave(value.trim())}>
+              onPress={() => onSave(value.trim())}
+            >
               <Text style={styles.saveText}>Create PDF</Text>
             </TouchableOpacity>
           </View>

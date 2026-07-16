@@ -171,7 +171,7 @@ const Library = () => {
         backgroundColor={theme.colors.primary}
       />
       <View style={[styles.header, { backgroundColor: theme.colors.primary }]}>
-        <Text style={styles.headerText}>Created PDFs</Text>
+        <Text style={styles.headerText}>Easy PDF</Text>
 
         <View style={styles.headerBtns}>
           <TouchableOpacity
@@ -219,7 +219,7 @@ const Library = () => {
       >
         <View style={styles.mainHeading}>
           <Text style={[styles.mainHeadingText, { color: theme.colors.text }]}>
-            PDF Collections
+            Created PDF's
           </Text>
 
           <View style={styles.mainHeadingBtns}>

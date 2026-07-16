@@ -17,7 +17,6 @@ import Library from './src/screens/Library';
 import PdfViewer from './src/screens/PdfViewer';
 import Setting from './src/screens/Setting';
 
-import ArrangePages from './src/screens/ArrangePages';
 import CreatePdf from './src/screens/CreatePdf';
 import CropImage from './src/screens/CropImage';
 
@@ -118,7 +117,6 @@ export default function App() {
                   <Stack.Screen name="MainTabs" component={MainTabs} />
                   <Stack.Screen name="PdfViewer" component={PdfViewer} />
                   <Stack.Screen name="CreatePdf" component={CreatePdf} />
-                  <Stack.Screen name="ArrangePages" component={ArrangePages} />
                   <Stack.Screen name="CropImage" component={CropImage} />
                 </Stack.Navigator>
               </NavigationContainer>

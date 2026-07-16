@@ -66,26 +66,28 @@ const PdfCard = ({
       </View>
 
       <View style={styles.infoBox}>
-        <Text
-          numberOfLines={2}
-          style={[
-            styles.name,
-            selected && styles.selectedText,
-            !selected && { color: theme.colors.text },
-          ]}
-        >
-          {item.displayName}
-        </Text>
-        <Text
-          numberOfLines={1}
-          style={[
-            styles.date,
-            selected && styles.selectedText,
-            !selected && { color: theme.colors.text },
-          ]}
-        >
-          {item.dateTimeLabel || item.createdLabel}
-        </Text>
+        <View style={{ gap: 2 }}>
+          <Text
+            numberOfLines={2}
+            style={[
+              styles.name,
+              selected && styles.selectedText,
+              !selected && { color: theme.colors.text },
+            ]}
+          >
+            {item.displayName}
+          </Text>
+          <Text
+            numberOfLines={1}
+            style={[
+              styles.date,
+              selected && styles.selectedText,
+              !selected && { color: theme.colors.text },
+            ]}
+          >
+            {item.dateTimeLabel || item.createdLabel}
+          </Text>
+        </View>
         {!isGrid && <Text style={styles.sizeBadgeList}>{item.sizeLabel}</Text>}
       </View>
     </TouchableOpacity>
@@ -179,7 +181,7 @@ const styles = StyleSheet.create({
   },
   infoBox: {
     flex: 1,
-    gap: 4,
+    gap: 8,
   },
   name: {
     fontSize: 14,

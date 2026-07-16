@@ -14,9 +14,7 @@ import {
   sharePdfFiles,
 } from '../services/pdfLibraryService';
 
-import {
-  getExpectedThumbnailPath
-} from '../utils/thumbnailUtils';
+import { getExpectedThumbnailPath } from '../utils/thumbnailUtils';
 
 const PdfContext = createContext(null);
 
@@ -43,7 +41,7 @@ export const PdfProvider = ({ children }) => {
     const newPath = await renameSavedPdf(oldPath, newName);
     // Calculate the new thumbnail path for the UI state
     const newThumbPath = getExpectedThumbnailPath(newPath);
-    
+
     setPdfs(prev =>
       prev.map(pdf =>
         pdf.path === oldPath
@@ -61,20 +59,19 @@ export const PdfProvider = ({ children }) => {
     return newPath;
   }, []);
 
-const deletePdf = useCallback(async path => {
+  const deletePdf = useCallback(async path => {
     try {
       // 1. Physically delete the PDF and its Thumbnail from the device storage
       await deleteSavedPdf(path);
-      
+
       // 2. Update the UI to explicitly remove ONLY this exact path
       setPdfs(prev => prev.filter(pdf => pdf.path !== path));
-      
     } catch (error) {
       console.log(`Failed to delete file and thumbnail for: ${path}`, error);
-      
-      // Optional: You can throw the error here so your UI (like Library.js) 
+
+      // Optional: You can throw the error here so your UI (like Library.js)
       // can catch it and show an Alert message to the user!
-      throw new Error('Failed to delete PDF'); 
+      throw new Error('Failed to delete PDF');
     }
   }, []);
 

@@ -1,24 +1,23 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+// 1. ADDED: Import NativeModules and Platform from react-native
+import { NativeModules, Platform } from 'react-native';
 
-// 1. Create the Context
+// 2. ADDED: Destructure our custom module from NativeModules
+const { NavigationBarColor } = NativeModules;
+
 const ThemeContext = createContext();
-
-// Define a key for AsyncStorage
 const THEME_STORAGE_KEY = '@app_theme_mode';
 
-// 2. Create the Provider Component
 export const ThemeProvider = ({ children }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [viewMode, setViewMode] = useState('grid');
 
-  // Load the saved theme from AsyncStorage when the app starts
   useEffect(() => {
     const loadSavedTheme = async () => {
       try {
         const savedMode = await AsyncStorage.getItem(THEME_STORAGE_KEY);
         if (savedMode !== null) {
-          // AsyncStorage saves everything as strings, so we parse it back to a boolean
           setIsDarkMode(JSON.parse(savedMode));
         }
       } catch (error) {
@@ -29,11 +28,22 @@ export const ThemeProvider = ({ children }) => {
     loadSavedTheme();
   }, []);
 
+  // 3. ADDED: This useEffect watches isDarkMode and instantly updates the Native Nav Bar
+  useEffect(() => {
+    if (Platform.OS === 'android' && NavigationBarColor) {
+      // Matching these exact colors to your theme.colors.background
+      const navBarColor = isDarkMode ? '#1E1E1E' : '#FFFFFF';
+      // If dark mode is true, we want light icons. If false, dark icons.
+      const useLightIcons = isDarkMode ? true : false;
+
+      NavigationBarColor.changeColor(navBarColor, useLightIcons);
+    }
+  }, [isDarkMode]); // Re-runs instantly whenever the state changes
+
   const toggleGridList = () => {
     setViewMode(prev => (prev === 'grid' ? 'list' : 'grid'));
   };
 
-  // Toggle the theme and save the new preference to AsyncStorage
   const toggleTheme = async () => {
     try {
       const newMode = !isDarkMode;
@@ -44,7 +54,6 @@ export const ThemeProvider = ({ children }) => {
     }
   };
 
-  // Define dynamic colors based on the current mode
   const theme = {
     isDarkMode,
     colors: {
@@ -76,5 +85,4 @@ export const ThemeProvider = ({ children }) => {
   );
 };
 
-// 3. Create a Custom Hook for easy access
 export const useTheme = () => useContext(ThemeContext);

@@ -183,7 +183,7 @@ const Home = () => {
         backgroundColor={theme.colors.primary}
       />
       <View style={[styles.header, { backgroundColor: theme.colors.primary }]}>
-        <Text style={styles.headerText}>Quick PDF</Text>
+        <Text style={styles.headerText}>Easy PDF</Text>
 
         <View style={styles.headerBtns}>
           <TouchableOpacity
@@ -231,7 +231,7 @@ const Home = () => {
       >
         <View style={styles.mainHeading}>
           <Text style={[styles.mainHeadingText, { color: theme.colors.text }]}>
-            PDF Collections
+            Imported PDF's
           </Text>
 
           <View style={styles.mainHeadingBtns}>

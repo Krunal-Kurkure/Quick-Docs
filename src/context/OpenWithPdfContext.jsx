@@ -17,6 +17,7 @@ import {
 } from '../services/fileService';
 import {
   formatPdfDate,
+  formatPdfSize,
   getDisplayNameFromFileName,
   toFileUri,
 } from '../utils/fileUtils';
@@ -30,6 +31,8 @@ const OpenWithPdfContext = createContext(null);
 const buildItemFromImported = async imported => {
   const path = imported.path || imported.id;
   const modifiedAtMs = imported.modifiedAt || Date.now();
+
+  const sizeBytes = Number(imported.size) || 0;
 
   // 2. CHECK FOR OR GENERATE THUMBNAIL
   const expectedThumbPath = getExpectedThumbnailPath(path);
@@ -53,7 +56,8 @@ const buildItemFromImported = async imported => {
     modifiedAt: new Date(modifiedAtMs).toISOString(),
     dateTimeLabel:
       imported.dateTimeLabel || formatPdfDate(new Date(modifiedAtMs)),
-    size: imported.size || 0,
+     sizeBytes,
+          sizeLabel: formatPdfSize(sizeBytes),
   };
 };
 

@@ -1,14 +1,14 @@
-import React, {createContext, useContext, useMemo, useState} from 'react';
-import {makeId} from '../utils/fileUtils';
+import React, { createContext, useContext, useMemo, useState } from 'react';
+import { makeId } from '../utils/fileUtils';
 
 const DraftPdfContext = createContext(null);
 
 const normalizeOrders = items =>
   [...items]
     .sort((a, b) => (a.order || 0) - (b.order || 0))
-    .map((item, index) => ({...item, order: index + 1}));
+    .map((item, index) => ({ ...item, order: index + 1 }));
 
-export const DraftPdfProvider = ({children}) => {
+export const DraftPdfProvider = ({ children }) => {
   const [draftImages, setDraftImages] = useState([]);
 
   const addDraftImages = images => {
@@ -26,13 +26,17 @@ export const DraftPdfProvider = ({children}) => {
 
   const updateDraftImage = (id, patch = {}) => {
     setDraftImages(prev => {
-      const updated = prev.map(item => (item.id === id ? {...item, ...patch} : item));
+      const updated = prev.map(item =>
+        item.id === id ? { ...item, ...patch } : item,
+      );
       return normalizeOrders(updated);
     });
   };
 
   const removeDraftImage = id => {
-    setDraftImages(prev => normalizeOrders(prev.filter(item => item.id !== id)));
+    setDraftImages(prev =>
+      normalizeOrders(prev.filter(item => item.id !== id)),
+    );
   };
 
   const setDraftImageOrder = (id, orderValue) => {
@@ -41,10 +45,15 @@ export const DraftPdfProvider = ({children}) => {
 
     setDraftImages(prev => {
       const updated = prev.map(item =>
-        item.id === id ? {...item, order: parsed} : item,
+        item.id === id ? { ...item, order: parsed } : item,
       );
       return normalizeOrders(updated);
     });
+  };
+
+  // NEW: Bulk update function to support flawless arrange sorting
+  const updateAllDraftImages = newImagesArray => {
+    setDraftImages(normalizeOrders(newImagesArray));
   };
 
   const clearDraft = () => setDraftImages([]);
@@ -57,6 +66,7 @@ export const DraftPdfProvider = ({children}) => {
       updateDraftImage,
       removeDraftImage,
       setDraftImageOrder,
+      updateAllDraftImages, // <-- Exported here so CreatePdf can use it
       clearDraft,
     }),
     [draftImages],
