@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { useMemo, useState } from 'react';
 import {
   Alert,
@@ -10,14 +11,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
-import { useNavigation } from '@react-navigation/native';
 
-import { useTheme } from '../context/ThemeContext';
-import { usePdfContext } from '../context/PdfContext';
-import SavePdfModal from '../components/SavePdfModal';
-import PdfCard from '../components/PdfCard';
 import EmptyState from '../components/EmptyState';
+import PdfCard from '../components/PdfCard';
 import RenameModal from '../components/RenameModal';
+import { usePdfContext } from '../context/PdfContext';
+import { useTheme } from '../context/ThemeContext';
 
 const Library = () => {
   const navigation = useNavigation();
@@ -243,7 +242,10 @@ const Library = () => {
               <Text style={styles.emptyText}>Loading PDFs...</Text>
             </View>
           ) : pdfs.length === 0 ? (
-            <EmptyState />
+            <EmptyState
+              title="No Created Pdf"
+              subtitle='Create Pdf using "+" button, pick images from camera or gallery to create a Pdf.'
+            />
           ) : (
             <FlatList
               data={pdfs}
@@ -305,7 +307,7 @@ const Library = () => {
         <RenameModal
           visible={renameVisible}
           currentName={renameTarget?.displayName || 'PDF'}
-         thumbnailUri={renameTarget?.thumbnailUri || null}
+          thumbnailUri={renameTarget?.thumbnailUri || null}
           onClose={() => {
             setRenameVisible(false);
             setRenameTarget(null);

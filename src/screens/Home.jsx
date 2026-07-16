@@ -21,7 +21,8 @@ import { useTheme } from '../context/ThemeContext';
 
 const Home = () => {
   const navigation = useNavigation();
-  const { openWithPdfs, loading, renamePdf, removePdfs } = useOpenWithPdfContext();
+  const { openWithPdfs, loading, renamePdf, removePdfs } =
+    useOpenWithPdfContext();
 
   const [actionMode, setActionMode] = useState('none'); // none | edit | share | delete
   const [selectedIds, setSelectedIds] = useState([]);
@@ -30,8 +31,8 @@ const Home = () => {
   const [sharing, setSharing] = useState(false);
 
   // Pull the theme data and toggle function from our Context
-    const { theme,viewMode,toggleGridList } = useTheme();
-    
+  const { theme, viewMode, toggleGridList } = useTheme();
+
   const selectedPdfs = useMemo(
     () => openWithPdfs.filter(item => selectedIds.includes(item.id)),
     [openWithPdfs, selectedIds],
@@ -44,8 +45,6 @@ const Home = () => {
     setRenameTarget(null);
     setSharing(false);
   };
-
-
 
   const onEditPress = () => {
     if (actionMode === 'edit') {
@@ -175,9 +174,15 @@ const Home = () => {
   );
 
   return (
-    <SafeAreaView style={[styles.safeAreaCont,{backgroundColor:theme.colors.primary}]} edges={['top']}>
-      <StatusBar barStyle={'light-content'} backgroundColor={theme.colors.primary} />
-      <View style={[styles.header,{backgroundColor:theme.colors.primary}]}>
+    <SafeAreaView
+      style={[styles.safeAreaCont, { backgroundColor: theme.colors.primary }]}
+      edges={['top']}
+    >
+      <StatusBar
+        barStyle={'light-content'}
+        backgroundColor={theme.colors.primary}
+      />
+      <View style={[styles.header, { backgroundColor: theme.colors.primary }]}>
         <Text style={styles.headerText}>Quick PDF</Text>
 
         <View style={styles.headerBtns}>
@@ -218,9 +223,16 @@ const Home = () => {
           </TouchableOpacity>
         </View>
       </View>
-      <View style={[styles.MainContainer,{ backgroundColor: theme.colors.background }]}>
+      <View
+        style={[
+          styles.MainContainer,
+          { backgroundColor: theme.colors.background },
+        ]}
+      >
         <View style={styles.mainHeading}>
-          <Text style={[styles.mainHeadingText,{ color: theme.colors.text }]}>PDF Collections</Text>
+          <Text style={[styles.mainHeadingText, { color: theme.colors.text }]}>
+            PDF Collections
+          </Text>
 
           <View style={styles.mainHeadingBtns}>
             <TouchableOpacity
@@ -230,19 +242,22 @@ const Home = () => {
               <Feather
                 name={viewMode === 'grid' ? 'list' : 'grid'}
                 size={22}
-                color={theme.colors.text }
+                color={theme.colors.text}
               />
             </TouchableOpacity>
           </View>
         </View>
 
-        <View style={{ flex: 1}}>
+        <View style={{ flex: 1 }}>
           {loading ? (
             <View style={styles.loadingBox}>
               <Text style={styles.emptyText}>Loading PDFs...</Text>
             </View>
           ) : openWithPdfs.length === 0 ? (
-            <EmptyState />
+            <EmptyState
+              title="No Opened Pdf"
+              subtitle="Open Pdf using apps like File Manager, Gmail, Google Drive, Crome, WhatsApp, Telegram."
+            />
           ) : (
             <FlatList
               data={openWithPdfs}
@@ -305,7 +320,7 @@ const Home = () => {
         <RenameModal
           visible={renameVisible}
           currentName={renameTarget?.displayName || 'PDF'}
-         thumbnailUri={renameTarget?.thumbnailUri || null}
+          thumbnailUri={renameTarget?.thumbnailUri || null}
           onClose={() => {
             setRenameVisible(false);
             setRenameTarget(null);
@@ -353,7 +368,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   mainHeading: {
-    paddingVertical:10,
+    paddingVertical: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
