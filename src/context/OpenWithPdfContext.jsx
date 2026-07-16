@@ -7,14 +7,19 @@ import React, {
   useRef,
   useState,
 } from 'react';
+
+// ------------------------------- REACT LINKING --------------------------
 import { Linking } from 'react-native';
 
+// ------------------------------- FILE SERVICE IMPORT --------------------------
 import {
   copyToAppLibraryIfNeeded,
   deletePdfFile,
   listLibraryPdfs,
   renamePdfFile,
 } from '../services/fileService';
+
+// ------------------------------- FILE UTILS IMPORT --------------------------
 import {
   formatPdfDate,
   formatPdfSize,
@@ -22,10 +27,16 @@ import {
   toFileUri,
 } from '../utils/fileUtils';
 
-import RNFS from 'react-native-fs'; // Make sure this is imported
-import { generatePdfThumbnail, getExpectedThumbnailPath } from '../utils/thumbnailUtils';
+// ------------------------------- FILES IMPORT --------------------------
+import RNFS from 'react-native-fs';
 
-// Refinement: Renamed context to avoid collision with the custom hook name
+// ------------------------------- IMAGE THUMBNAIL IMPORT --------------------------
+import {
+  generatePdfThumbnail,
+  getExpectedThumbnailPath,
+} from '../utils/thumbnailUtils';
+
+
 const OpenWithPdfContext = createContext(null);
 
 const buildItemFromImported = async imported => {
@@ -34,7 +45,7 @@ const buildItemFromImported = async imported => {
 
   const sizeBytes = Number(imported.size) || 0;
 
-  // 2. CHECK FOR OR GENERATE THUMBNAIL
+  // ----------------------- CHECK FOR OR GENERATE THUMBNAIL -----------------------
   const expectedThumbPath = getExpectedThumbnailPath(path);
   let thumbExists = await RNFS.exists(expectedThumbPath);
   let finalThumbUri = thumbExists ? `file://${expectedThumbPath}` : null;
@@ -48,7 +59,7 @@ const buildItemFromImported = async imported => {
     id: path,
     path,
     uri: imported.uri || toFileUri(path),
-    thumbnailUri:finalThumbUri,
+    thumbnailUri: finalThumbUri,
     fileName: imported.fileName || `${imported.displayName || 'PDF'}.pdf`,
     displayName:
       imported.displayName ||
@@ -56,8 +67,8 @@ const buildItemFromImported = async imported => {
     modifiedAt: new Date(modifiedAtMs).toISOString(),
     dateTimeLabel:
       imported.dateTimeLabel || formatPdfDate(new Date(modifiedAtMs)),
-     sizeBytes,
-          sizeLabel: formatPdfSize(sizeBytes),
+    sizeBytes,
+    sizeLabel: formatPdfSize(sizeBytes),
   };
 };
 
@@ -85,6 +96,7 @@ export const OpenWithPdfProvider = ({ children }) => {
     }
   }, []);
 
+  // ---------------------------------- HANDLES THE INCOMING IMAGE URL ------------------------------
   const handleIncomingUrl = useCallback(
     async url => {
       if (!url) return;
@@ -139,6 +151,7 @@ export const OpenWithPdfProvider = ({ children }) => {
     };
   }, [handleIncomingUrl, refreshLibrary]);
 
+  // ---------------------------------- RENAME THE PDF ------------------------------
   const renamePdf = useCallback(async (oldPath, newName) => {
     const newPath = await renamePdfFile(oldPath, newName);
 
@@ -179,15 +192,16 @@ export const OpenWithPdfProvider = ({ children }) => {
     return newPath;
   }, []);
 
- const removePdfs = useCallback(async (paths = []) => {
+  // ---------------------------------- REMOVE THE PDF ------------------------------
+  const removePdfs = useCallback(async (paths = []) => {
     // Keep track of which files ACTUALLY got deleted
     const successfullyDeleted = [];
 
     for (const path of paths) {
       try {
         // 1. Physically delete the PDF and its Thumbnail from the device storage
-        await deletePdfFile(path); 
-        
+        await deletePdfFile(path);
+
         // 2. Mark it as a success
         successfullyDeleted.push(path);
       } catch (error) {
@@ -196,8 +210,10 @@ export const OpenWithPdfProvider = ({ children }) => {
     }
 
     // 3. Update the UI to strictly remove ONLY the ones that succeeded
-    setPdfs(prev => prev.filter(item => !successfullyDeleted.includes(item.path)));
-    
+    setPdfs(prev =>
+      prev.filter(item => !successfullyDeleted.includes(item.path)),
+    );
+
     setPendingOpenPdf(prev =>
       prev && successfullyDeleted.includes(prev.path) ? null : prev,
     );
@@ -209,7 +225,7 @@ export const OpenWithPdfProvider = ({ children }) => {
 
   const value = useMemo(
     () => ({
-    openWithPdfs,
+      openWithPdfs,
       loading,
       refreshLibrary,
       renamePdf,
@@ -238,7 +254,9 @@ export const OpenWithPdfProvider = ({ children }) => {
 export const useOpenWithPdfContext = () => {
   const ctx = useContext(OpenWithPdfContext);
   if (!ctx) {
-    throw new Error('useOpenWithPdfContext must be used inside OpenWithPdfProvider');
+    throw new Error(
+      'useOpenWithPdfContext must be used inside OpenWithPdfProvider',
+    );
   }
   return ctx;
 };

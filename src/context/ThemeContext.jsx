@@ -1,9 +1,12 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+
+// ---------------------------------- THEME STORAGE ------------------------------
 import AsyncStorage from '@react-native-async-storage/async-storage';
-// 1. ADDED: Import NativeModules and Platform from react-native
+
+// ----------------- NATIVE MODULES AND PLATFORM IMPORT--------------------------------
 import { NativeModules, Platform } from 'react-native';
 
-// 2. ADDED: Destructure our custom module from NativeModules
+// ----------------- DESTRUCTURE NATIVE MODULE -----------------
 const { NavigationBarColor } = NativeModules;
 
 const ThemeContext = createContext();
@@ -28,22 +31,26 @@ export const ThemeProvider = ({ children }) => {
     loadSavedTheme();
   }, []);
 
-  // 3. ADDED: This useEffect watches isDarkMode and instantly updates the Native Nav Bar
+  // UseEffect watches isDarkMode and instantly updates the Native Nav Bar
   useEffect(() => {
     if (Platform.OS === 'android' && NavigationBarColor) {
-      // Matching these exact colors to your theme.colors.background
+
+      // NAVBAR COLOR
       const navBarColor = isDarkMode ? '#1E1E1E' : '#FFFFFF';
-      // If dark mode is true, we want light icons. If false, dark icons.
+
+      // NAVBAR ICON COLOR
       const useLightIcons = isDarkMode ? true : false;
 
       NavigationBarColor.changeColor(navBarColor, useLightIcons);
     }
-  }, [isDarkMode]); // Re-runs instantly whenever the state changes
+  }, [isDarkMode]);
 
+  // ------------------------------ TOGGLE THE GIRD LAYOUT -------------------------------
   const toggleGridList = () => {
     setViewMode(prev => (prev === 'grid' ? 'list' : 'grid'));
   };
 
+  // ------------------------------ TOGGLE THE THEME ---------------------------------
   const toggleTheme = async () => {
     try {
       const newMode = !isDarkMode;
@@ -54,6 +61,7 @@ export const ThemeProvider = ({ children }) => {
     }
   };
 
+  // -------------------------------- THEME COLORS --------------------------------
   const theme = {
     isDarkMode,
     colors: {

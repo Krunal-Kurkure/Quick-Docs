@@ -1,5 +1,7 @@
 import RNFS from 'react-native-fs';
 import { NativeModules } from 'react-native';
+
+// ----------------- FILES UTILS IMPORT --------------------------------------------------------------
 import {
   formatPdfDate,
   formatPdfSize,
@@ -9,20 +11,25 @@ import {
   toFileUri,
 } from '../utils/fileUtils';
 
-// --- ADDED: Destructure the new native thumbnail module ---
+// ----------------- DESTRUCUTRE NATIVE MODULES -------------------------------------------------------
 const { EasyPdfImportModule, PdfThumbnailMaker } = NativeModules;
 
+// ----------------- IMPORTED PDF STORAGE FOLDER --------------------------------------------------------------
 const APP_LIBRARY_DIR = `${RNFS.ExternalDirectoryPath}/EasyPDF`;
 const SHARE_CACHE_DIR = `${RNFS.CachesDirectoryPath}/EasyPDFShare`;
 
-// --- ADDED: Helper to predict where the Kotlin module saves the thumbnail ---
-const getExpectedThumbnailPath = (pdfPath) => {
+// ------------------ HELPER TO PREDICT WHERE THE THUMBNAIL SAVES BY THE MODULE ----------------------
+const getExpectedThumbnailPath = pdfPath => {
   const cleanPath = stripFileUri(String(pdfPath).split('?')[0]);
-  const fileNameWithoutExt = cleanPath.split('/').pop().replace(/\.pdf$/i, '');
+  const fileNameWithoutExt = cleanPath
+    .split('/')
+    .pop()
+    .replace(/\.pdf$/i, '');
   // React Native's DocumentDirectoryPath maps perfectly to Android's filesDir
   return `${RNFS.DocumentDirectoryPath}/PdfThumbnails/${fileNameWithoutExt}.jpg`;
 };
 
+// --------------- ENSUES THE FOLDER EXISTS --------------------------------------------------
 const ensureDir = async dir => {
   const exists = await RNFS.exists(dir);
   if (!exists) {
@@ -33,61 +40,70 @@ const ensureDir = async dir => {
 export const ensureAppDirectory = async () => {
   await ensureAppDirectoryDir();
 };
+
 // Fixing the typo from original if it existed, ensuring proper call
 const ensureAppDirectoryDir = async () => {
   await ensureDir(APP_LIBRARY_DIR);
-}
+};
 
 export const getImportedLibraryDir = () => APP_LIBRARY_DIR;
 
+// ---------------- LIST THE PDFS FROM THE STORAGE ------------------------------
 export const listLibraryPdfs = async () => {
   await ensureAppDirectory();
 
   const items = await RNFS.readDir(APP_LIBRARY_DIR);
-  
+
   // 1. Filter out non-pdfs
-  const pdfFiles = items.filter(item => item.isFile() && item.name.toLowerCase().endsWith('.pdf'));
+  const pdfFiles = items.filter(
+    item => item.isFile() && item.name.toLowerCase().endsWith('.pdf'),
+  );
 
   // 2. Use Promise.all to map over files asynchronously (required for native thumbnail check)
-  const formattedPdfs = await Promise.all(pdfFiles.map(async (item) => {
-    const sizeBytes = Number(item.size) || 0;
+  const formattedPdfs = await Promise.all(
+    pdfFiles.map(async item => {
+      const sizeBytes = Number(item.size) || 0;
 
-    // --- THUMBNAIL GENERATION LOGIC ---
-    const thumbPath = getExpectedThumbnailPath(item.path);
-    let thumbExists = await RNFS.exists(thumbPath);
-    let thumbnailUri = thumbExists ? `file://${thumbPath}` : null;
+      // --- THUMBNAIL GENERATION LOGIC ---
+      const thumbPath = getExpectedThumbnailPath(item.path);
+      let thumbExists = await RNFS.exists(thumbPath);
+      let thumbnailUri = thumbExists ? `file://${thumbPath}` : null;
 
-    // If the thumbnail doesn't exist yet, ask the Kotlin module to make it instantly
-    if (!thumbExists && PdfThumbnailMaker) {
-      try {
-        thumbnailUri = await PdfThumbnailMaker.generateThumbnail(item.path);
-      } catch (error) {
-        console.log('Failed to generate thumbnail:', error);
+      // If the thumbnail doesn't exist yet, ask the Kotlin module to make it instantly
+      if (!thumbExists && PdfThumbnailMaker) {
+        try {
+          thumbnailUri = await PdfThumbnailMaker.generateThumbnail(item.path);
+        } catch (error) {
+          console.log('Failed to generate thumbnail:', error);
+        }
       }
-    }
-    // ----------------------------------
 
-    return {
-      id: item.path,
-      path: item.path,
-      uri: toFileUri(item.path),
-      thumbnailUri, // <-- Attached to the data object here!
-      fileName: item.name,
-      displayName: getDisplayNameFromFileName(item.name),
-      modifiedAt: item.mtime ? item.mtime.toISOString() : new Date().toISOString(),
-      dateTimeLabel: formatPdfDate(item.mtime || new Date()),
-      sizeBytes,
-      sizeLabel: formatPdfSize(sizeBytes),
-      source: 'imported',
-    };
-  }));
+      return {
+        id: item.path,
+        path: item.path,
+        uri: toFileUri(item.path),
+        thumbnailUri, // <-- Attached to the data object here!
+        fileName: item.name,
+        displayName: getDisplayNameFromFileName(item.name),
+        modifiedAt: item.mtime
+          ? item.mtime.toISOString()
+          : new Date().toISOString(),
+        dateTimeLabel: formatPdfDate(item.mtime || new Date()),
+        sizeBytes,
+        sizeLabel: formatPdfSize(sizeBytes),
+        source: 'imported',
+      };
+    }),
+  );
 
   // Sort them by date
   return formattedPdfs.sort(
-    (a, b) => new Date(b.modifiedAt).getTime() - new Date(a.modifiedAt).getTime(),
+    (a, b) =>
+      new Date(b.modifiedAt).getTime() - new Date(a.modifiedAt).getTime(),
   );
 };
 
+// ---------------------------- RENAME PDF FILE ------------------------------------
 export const renamePdfFile = async (oldPath, newDisplayName) => {
   const cleanOldPath = stripFileUri(oldPath);
   const directory = cleanOldPath.substring(0, cleanOldPath.lastIndexOf('/'));
@@ -124,9 +140,10 @@ export const renamePdfFile = async (oldPath, newDisplayName) => {
   return finalNewPath;
 };
 
+// ----------------------------------- DELETE THE FILE FROM THE STORAGE ---------------------------
 export const deletePdfFile = async path => {
   const cleanPath = stripFileUri(path);
-  
+
   if (await RNFS.exists(cleanPath)) {
     await RNFS.unlink(cleanPath);
   }
@@ -137,7 +154,6 @@ export const deletePdfFile = async path => {
   if (await RNFS.exists(thumbPath)) {
     await RNFS.unlink(thumbPath);
   }
-  // ------------------------------
 
   return true;
 };
@@ -168,6 +184,7 @@ const resolveLocalPath = async uriOrPath => {
   return clean;
 };
 
+// --------------------------- SHARE THE PDF VIA STORAGE BY MAKING COPY -----------------------------
 export const createShareableCopy = async path => {
   await ensureDir(SHARE_CACHE_DIR);
 

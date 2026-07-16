@@ -10,7 +10,7 @@ export const cropImage = async (path, options = {}) => {
     width: options.width || 1200,
     height: options.height || 1600,
     freeStyleCropEnabled: true,
-    cropperToolbarTitle: 'Crop Image',    
+    cropperToolbarTitle: 'Crop Image',
     showCropGuidelines: true,
     showCropFrame: true,
     ...options,

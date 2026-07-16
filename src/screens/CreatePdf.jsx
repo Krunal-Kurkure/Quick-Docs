@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+
 import {
   ActivityIndicator,
   Alert,
@@ -10,25 +11,35 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Feather from 'react-native-vector-icons/Feather';
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
+// ----------------- ICON IMPORT ------------------------------------------
+import Feather from 'react-native-vector-icons/Feather';
+
+// -------------------------- IMAGE PICKER IMPORT ---------------------------
 import {
   captureImageFromCamera,
   pickImagesFromGallery,
 } from '../services/imagePickerService';
+
+// --------------------------- GENERATE IMAGE TO PDF IMPORT --------------------------
 import { generatePdfFromImages } from '../services/pdfGeneratorService';
-import { useDraftPdf } from '../context/DraftPdfContext';
-import ImageCard from '../components/ImageCard';
-import SavePdfModal from '../components/SavePdfModal';
+
+// --------------------------- CONTEXT IMPORT ---------------------------------
 import { usePdfContext } from '../context/PdfContext';
+import { useDraftPdf } from '../context/DraftPdfContext';
+
+// --------------------------- COMPONENTS IMPORT -----------------------------------
+import ImageCard from '../components/ImageCard';
 import { useTheme } from '../context/ThemeContext';
+import SavePdfModal from '../components/SavePdfModal';
 
 const CreatePdf = () => {
+  // --------------------------- NAVIGATION USES ------------------------------
   const navigation = useNavigation();
 
-  // Notice we are now using updateAllDraftImages instead of the old swap function
+  // --------------------------- DRAFT IMAGE CONTEXT CHILDS --------------------
   const {
     draftImages,
     addDraftImages,
@@ -37,20 +48,29 @@ const CreatePdf = () => {
     clearDraft,
   } = useDraftPdf();
 
+  // ----------------------- CREATED PDF CONTEXT CHILDS ---------------------------
   const { refreshLibrary } = usePdfContext();
 
-  const [saveVisible, setSaveVisible] = useState(false);
-  const [creating, setCreating] = useState(false);
-
-  const [isArranging, setIsArranging] = useState(false);
-  const [arrangeSelection, setArrangeSelection] = useState([]);
+  // ----------------------- THEME CONTEXT CHILD --------------------------------
   const { theme } = useTheme();
 
+  // --------------- SAVE MODAL USESTATE -----------------------------
+  const [saveVisible, setSaveVisible] = useState(false);
+
+  // --------------- CREATING PDF USESTATE -----------------------------
+  const [creating, setCreating] = useState(false);
+
+  // --------------- ARRANGE IMAGES USESTATE -----------------------------
+  const [isArranging, setIsArranging] = useState(false);
+  const [arrangeSelection, setArrangeSelection] = useState([]);
+
+  // ---------------- ORDER IMAGES FUNCTIONS --------------------------
   const orderedImages = useMemo(
     () => [...draftImages].sort((a, b) => a.order - b.order),
     [draftImages],
   );
 
+  // ---------------- ADD IMAGES FROM THE GALLERY ----------------------
   const addFromGallery = async () => {
     try {
       const images = await pickImagesFromGallery();
@@ -60,6 +80,7 @@ const CreatePdf = () => {
     }
   };
 
+  // ---------------- ADD IMAGES FROM THE CAMERA ------------------------
   const addFromCamera = async () => {
     try {
       const images = await captureImageFromCamera();
@@ -69,15 +90,18 @@ const CreatePdf = () => {
     }
   };
 
+  // ---------------- CROP THE IMAGES -----------------------------------
   const onCrop = item => {
     navigation.navigate('CropImage', { draftId: item.id });
   };
 
+  // ---------------- ARRANGE MODE ON -------------------------
   const toggleArrangeMode = () => {
     setIsArranging(!isArranging);
     setArrangeSelection([]);
   };
 
+  // --------------------- SELECT THE IMAGES FOR ARRANGEMENT ----------------
   const handleSelectForArrange = id => {
     if (arrangeSelection.includes(id)) {
       setArrangeSelection(prev => prev.filter(item => item !== id));
@@ -86,7 +110,7 @@ const CreatePdf = () => {
     }
   };
 
-  // The Flawless Sorting Logic
+  // ------------------ SAVE THE ARRANGE IMAGES ---------------------------
   const saveArrangedOrder = () => {
     if (arrangeSelection.length === 0) {
       setIsArranging(false);
@@ -119,6 +143,7 @@ const CreatePdf = () => {
     setArrangeSelection([]);
   };
 
+  // ------------------------- CREATE PDF FUNCTION ----------------------------------
   const createPdf = pdfName => {
     if (!orderedImages.length) {
       Alert.alert('No images', 'Please add images first.');
@@ -152,11 +177,14 @@ const CreatePdf = () => {
 
   return (
     <SafeAreaView style={styles.safeAreaCont} edges={['top', 'bottom']}>
+      {/* ------------ STATUS BAR COLORS -------------------  */}
       <StatusBar barStyle="light-content" backgroundColor="#8A58FF" />
 
+      {/* ---------------- MAIN CONTAINER -----------------------  */}
       <View
         style={[styles.container, { backgroundColor: theme.colors.background }]}
       >
+        {/* -------------------- HEADER ---------------------  */}
         <View
           style={[styles.header, { backgroundColor: theme.colors.primary }]}
         >
@@ -170,6 +198,7 @@ const CreatePdf = () => {
           <Text style={styles.headerText}>Create PDF</Text>
         </View>
 
+        {/* -------------------- ADD IMAGES FROM GALLERY, CAMERA & ARRANGE BUTTON ---------------------- */}
         <View style={styles.topActions}>
           <TouchableOpacity
             style={[styles.actionBtn, { backgroundColor: theme.colors.pdfBg }]}
@@ -203,6 +232,7 @@ const CreatePdf = () => {
           </TouchableOpacity>
         </View>
 
+        {/* ---------------------------- IMAGE CARD IN 2 COLUMNS ----------------------------  */}
         <FlatList
           data={orderedImages}
           keyExtractor={item => item.id}
@@ -232,6 +262,7 @@ const CreatePdf = () => {
           }
         />
 
+        {/* -------------------------- BOTTOM ACTION BUTTONS ----------------- */}
         {draftImages.length > 0 && (
           <View style={styles.footer}>
             {isArranging ? (
@@ -270,6 +301,7 @@ const CreatePdf = () => {
           </View>
         )}
 
+        {/* ----------------------- SAVE PDF MODAL ---------------------- */}
         <SavePdfModal
           visible={saveVisible}
           defaultName={`PDF_${new Date().toISOString().slice(0, 10)}`}
@@ -277,6 +309,7 @@ const CreatePdf = () => {
           onSave={createPdf}
         />
 
+        {/* ---------------------------- LOADING & CREATEING PDF ------------------- */}
         <Modal visible={creating} transparent={true} animationType="fade">
           {/* 1. The full-screen background */}
           <View style={styles.overlayBackground}>
@@ -390,8 +423,8 @@ const styles = StyleSheet.create({
 
   clearBtn: {
     borderWidth: 1,
-    backgroundColor: '#F8FAFC',
     borderColor: '#E2E8F0',
+    backgroundColor: '#F8FAFC',
   },
 
   saveBtn: {
@@ -415,27 +448,27 @@ const styles = StyleSheet.create({
 
   overlayBackground: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
   },
 
   whiteBox: {
-    backgroundColor: '#fff',
-    paddingHorizontal: 40,
-    paddingVertical: 30,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
     elevation: 5,
+    borderRadius: 16,
+    paddingVertical: 30,
+    alignItems: 'center',
+    paddingHorizontal: 40,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
   },
 
   loadingText: {
-    marginTop: 20,
-    color: '#0F172A',
     fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
+    marginTop: 20,
     lineHeight: 24,
+    fontWeight: '600',
+    color: '#0F172A',
+    textAlign: 'center',
   },
 });

@@ -9,10 +9,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import Pdf from 'react-native-pdf';
+
+// --------------------------- ICON IMPORT -----------------------------------
 import Feather from 'react-native-vector-icons/Feather';
 
-import { toFileUri } from '../utils/fileUtils';
 
 const COLORS = {
   primary: '#0F172A',
@@ -109,8 +109,8 @@ export default RenameModal;
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: COLORS.overlay,
     justifyContent: 'center',
+    backgroundColor: COLORS.overlay,
     paddingHorizontal: SPACING.sidePadding,
   },
   sheet: {

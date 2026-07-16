@@ -1,16 +1,34 @@
 import React from 'react';
-import { StyleSheet, Text, View, Switch, TouchableOpacity } from 'react-native';
-import { useTheme } from '../context/ThemeContext'; // Adjust path if needed
+import {
+  StyleSheet,
+  Text,
+  View,
+  Switch,
+  TouchableOpacity,
+  StatusBar,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+// ----------------- ICON IMPORT ------------------------------------------
 import Feather from 'react-native-vector-icons/Feather';
+
+// ----------------- CONTEXT IMPORT ------------------------------------------
+import { useTheme } from '../context/ThemeContext';
 const Setting = () => {
-  // Pull the theme data and toggle function from our Context
+  // ----------------------- THEME CONTEXT CHILD --------------------------------
   const { theme, toggleTheme } = useTheme();
 
   return (
     <SafeAreaView
       style={[styles.safeArea, { backgroundColor: theme.colors.background }]}
     >
+      {/* ------------ STATUS BAR COLORS -------------------  */}
+      <StatusBar
+        barStyle={'light-content'}
+        backgroundColor={theme.colors.primary}
+      />
+
+      {/* ------------ HEADER -------------------  */}
       <View style={styles.header}>
         <Text style={styles.headerText}>Settings</Text>
 
@@ -19,9 +37,6 @@ const Setting = () => {
         </TouchableOpacity>
       </View>
       <View style={styles.container}>
-        {/* Main Heading */}
-
-        {/* Setting Options Container */}
         <View
           style={[
             styles.card,
@@ -31,7 +46,6 @@ const Setting = () => {
             },
           ]}
         >
-          {/* Theme Toggle Row */}
           <TouchableOpacity
             onPress={toggleTheme}
             activeOpacity={1}
@@ -73,18 +87,18 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   header: {
+    paddingVertical: 15,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#8A58FF',
-    paddingVertical: 15,
     paddingHorizontal: 15,
+    backgroundColor: '#8A58FF',
+    justifyContent: 'space-between',
   },
   headerText: {
+    fontSize: 18,
     fontWeight: '700',
     letterSpacing: 0.3,
     color: '#ffffff',
-    fontSize: 18,
   },
   Btn: {
     padding: 3,
@@ -93,16 +107,16 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
   },
   card: {
-    borderRadius: 12,
     borderWidth: 1,
+    borderRadius: 12,
     overflow: 'hidden',
   },
   settingRow: {
+    paddingVertical: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 16,
     paddingHorizontal: 15,
+    justifyContent: 'space-between',
   },
   textContainer: {
     flex: 1,
@@ -110,8 +124,8 @@ const styles = StyleSheet.create({
   },
   settingLabel: {
     fontSize: 17,
-    fontWeight: '500',
     marginBottom: 4,
+    fontWeight: '500',
   },
   settingDesc: {
     fontSize: 13,

@@ -1,31 +1,44 @@
+import 'react-native-gesture-handler';
+
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
 import {
   NavigationContainer,
   createNavigationContainerRef,
 } from '@react-navigation/native';
+
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
 import React, { useEffect, useState } from 'react';
+
 import { StyleSheet } from 'react-native';
-import 'react-native-gesture-handler';
+
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+// --------------------------- ICON IMPORT -----------------------------------
 import Feather from 'react-native-vector-icons/Feather';
 
-// Context & Screens
+// --------------------------- SCREEN IMPORT -----------------------------------
 import Home from './src/screens/Home';
 import Library from './src/screens/Library';
-import PdfViewer from './src/screens/PdfViewer';
 import Setting from './src/screens/Setting';
-
+import PdfViewer from './src/screens/PdfViewer';
 import CreatePdf from './src/screens/CreatePdf';
 import CropImage from './src/screens/CropImage';
 
-import { DraftPdfProvider } from './src/context/DraftPdfContext';
-import { OpenWithPdfProvider, useOpenWithPdfContext } from './src/context/OpenWithPdfContext';
+// --------------------------- CONTEXT IMPORT -----------------------------------
+import {
+  OpenWithPdfProvider,
+  useOpenWithPdfContext,
+} from './src/context/OpenWithPdfContext';
 import { PdfProvider } from './src/context/PdfContext';
+import { DraftPdfProvider } from './src/context/DraftPdfContext';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
+
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+
 export const navigationRef = createNavigationContainerRef();
 
 // 1. Map route names to icon names to eliminate if/else blocks
@@ -36,7 +49,7 @@ const TAB_ICONS = {
 };
 
 function MainTabs() {
-  // Pull the theme data and toggle function from our Context
+  // --------------------------- THEME CHILD  -----------------------------------
   const { theme } = useTheme();
 
   return (
@@ -128,7 +141,6 @@ export default function App() {
   );
 }
 
-// 4. Extracted styles for cleaner component code
 const styles = StyleSheet.create({
   container: {
     flex: 1,

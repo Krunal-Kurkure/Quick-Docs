@@ -6,6 +6,8 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+
+// ---------------------------------- LIBRARY IMPORT ------------------------------
 import {
   deleteSavedPdf,
   listSavedPdfs,
@@ -14,6 +16,7 @@ import {
   sharePdfFiles,
 } from '../services/pdfLibraryService';
 
+// ------------------------------- IMAGE THUMBNAIL IMPORT --------------------------
 import { getExpectedThumbnailPath } from '../utils/thumbnailUtils';
 
 const PdfContext = createContext(null);
@@ -37,6 +40,7 @@ export const PdfProvider = ({ children }) => {
     refreshLibrary();
   }, [refreshLibrary]);
 
+  // ---------------------------------- RENAME THE PDF ------------------------------
   const renamePdf = useCallback(async (oldPath, newName) => {
     const newPath = await renameSavedPdf(oldPath, newName);
     // Calculate the new thumbnail path for the UI state
@@ -59,6 +63,7 @@ export const PdfProvider = ({ children }) => {
     return newPath;
   }, []);
 
+  // ---------------------------------- DELETE THE PDF ------------------------------
   const deletePdf = useCallback(async path => {
     try {
       // 1. Physically delete the PDF and its Thumbnail from the device storage
@@ -75,10 +80,12 @@ export const PdfProvider = ({ children }) => {
     }
   }, []);
 
+  // ---------------------------------- SHARE SINGLE PDF ------------------------------
   const sharePdf = useCallback(async path => {
     return sharePdfFile(path);
   }, []);
 
+  // ---------------------------------- SHARE MULTIPLE PDF's ------------------------------
   const shareMultiple = useCallback(async paths => {
     return sharePdfFiles(paths);
   }, []);

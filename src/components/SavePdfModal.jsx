@@ -9,9 +9,9 @@ import {
   View,
 } from 'react-native';
 
-const SavePdfModal = ({ visible, defaultName = '', onClose, onSave }) => {
-  const [value, setValue] = useState(defaultName);
+const [value, setValue] = useState(defaultName);
 
+const SavePdfModal = ({ visible, defaultName = '', onClose, onSave }) => {
   useEffect(() => {
     if (visible) setValue(defaultName);
   }, [visible, defaultName]);
@@ -62,15 +62,15 @@ export default SavePdfModal;
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(15, 23, 42, 0.55)',
-    justifyContent: 'center',
     paddingHorizontal: 18,
+    justifyContent: 'center',
+    backgroundColor: 'rgba(15, 23, 42, 0.55)',
   },
   sheet: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 16,
     gap: 14,
+    padding: 16,
+    borderRadius: 20,
+    backgroundColor: '#FFFFFF',
   },
   title: {
     fontSize: 18,
@@ -79,15 +79,15 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#E2E8F0',
     borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
     color: '#0F172A',
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderColor: '#E2E8F0',
   },
   row: {
-    flexDirection: 'row',
     gap: 10,
+    flexDirection: 'row',
   },
   btn: {
     flex: 1,

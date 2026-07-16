@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   ScrollView,
@@ -8,38 +8,56 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import Feather from 'react-native-vector-icons/Feather';
-import Pdf from 'react-native-pdf';
-import {useNavigation, useRoute} from '@react-navigation/native';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
-import {toFileUri} from '../utils/fileUtils';
+// ----------------- ICON IMPORT ------------------------------------------
+import Feather from 'react-native-vector-icons/Feather';
+
+// ----------------- PDF VIEW IMPORT ------------------------------------------
+import Pdf from 'react-native-pdf';
+
+// ----------------- CONTEXT IMPORT ------------------------------------------
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+// ----------------- FILE UTILS IMPORT ------------------------------------------
+import { toFileUri } from '../utils/fileUtils';
 
 const PdfViewer = () => {
+  // --------------------------- NAVIGATION USES ----------------------------
   const navigation = useNavigation();
   const route = useRoute();
   const [loading, setLoading] = useState(true);
 
-  const currentPdf = useMemo(() => route.params?.pdf || null, [route.params?.pdf]);
+  const currentPdf = useMemo(
+    () => route.params?.pdf || null,
+    [route.params?.pdf],
+  );
 
-const pdfSource = useMemo(() => {
+  const pdfSource = useMemo(() => {
     // 1. Prioritize path over uri just like in PdfCard
-    const source = currentPdf?.path || currentPdf?.uri; 
+    const source = currentPdf?.path || currentPdf?.uri;
     if (!source) return null;
 
     return {
       uri: toFileUri(source),
       // 2. Optional but recommended: set cache to false for local files
-      cache: false, 
+      cache: false,
     };
   }, [currentPdf?.path, currentPdf?.uri]);
 
   return (
     <SafeAreaView style={styles.safeAreaCont} edges={['top', 'bottom']}>
+         {/* ------------ STATUS BAR COLORS -------------------  */}
       <StatusBar barStyle="light-content" backgroundColor="#8A58FF" />
+
       <View style={styles.MainContainer}>
+
+         {/* ------------ HEADER -------------------  */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconBtn}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.iconBtn}
+          >
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
@@ -57,6 +75,7 @@ const pdfSource = useMemo(() => {
           </View>
         </View>
 
+        {/* ------------ PDF CONTAINER -------------------  */}
         <View style={styles.pdfContainer}>
           {pdfSource ? (
             <Pdf
@@ -103,13 +122,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
+    gap: 10,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-start',
-    backgroundColor: '#8A58FF',
     paddingVertical: 15,
     paddingHorizontal: 15,
-    gap: 10,
+    justifyContent: 'flex-start',
+    backgroundColor: '#8A58FF',
   },
   iconBtn: {
     padding: 4,
@@ -119,14 +138,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   headerText: {
+    fontSize: 18,
     fontWeight: '700',
     letterSpacing: 0.3,
     color: '#ffffff',
-    fontSize: 18,
   },
   dateText: {
-    color: '#ffffffb1',
     fontSize: 12,
+    color: '#ffffffb1',
     fontWeight: '500',
   },
   pdfContainer: {
@@ -134,21 +153,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#E6E6E6',
   },
   pdf: {
-    backgroundColor: '#E6E6E6',
-    paddingHorizontal: 12,
-    paddingVertical: 12,
     flex: 1,
     width: '100%',
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    backgroundColor: '#E6E6E6',
   },
   loader: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#E6E6E6',
+    gap: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 10,
+    backgroundColor: '#E6E6E6',
   },
   loadingText: {
-    color: '#475569',
     fontSize: 13,
+    color: '#475569',
   },
 });

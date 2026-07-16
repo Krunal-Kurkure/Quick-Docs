@@ -1,5 +1,5 @@
-import {PermissionsAndroid, Platform} from 'react-native';
-import {PERMISSIONS, RESULTS, request} from 'react-native-permissions';
+import { PermissionsAndroid, Platform } from 'react-native';
+import { PERMISSIONS, RESULTS, request } from 'react-native-permissions';
 
 export const ensureGalleryPermission = async () => {
   if (Platform.OS === 'ios') {

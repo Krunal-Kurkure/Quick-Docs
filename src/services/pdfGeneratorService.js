@@ -1,13 +1,16 @@
-import {createPdf} from 'react-native-pdf-from-image';
+import { createPdf } from 'react-native-pdf-from-image';
 import {
   stripFileUri,
   toFileUri,
   getFileNameWithoutExt,
-  formatPdfDate
+  formatPdfDate,
 } from '../utils/fileUtils'; // Make sure to import these!
-import {savePdfToLibrary} from './pdfLibraryService';
+import { savePdfToLibrary } from './pdfLibraryService';
 
-export const generatePdfFromImages = async (imagePaths = [], pdfName = 'PDF') => {
+export const generatePdfFromImages = async (
+  imagePaths = [],
+  pdfName = 'PDF',
+) => {
   const cleaned = imagePaths.map(stripFileUri).filter(Boolean);
 
   if (!cleaned.length) {
@@ -22,7 +25,7 @@ export const generatePdfFromImages = async (imagePaths = [], pdfName = 'PDF') =>
   });
 
   const tempPath = temp?.filePath || temp?.path || temp;
-  
+
   // 2. Save it to your persistent library directory
   const finalPath = await savePdfToLibrary(tempPath, pdfName);
 

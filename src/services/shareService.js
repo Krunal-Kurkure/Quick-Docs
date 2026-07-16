@@ -1,5 +1,5 @@
 import Share from 'react-native-share';
-import {createShareableCopy} from './fileService';
+import { createShareableCopy } from './fileService';
 
 export const shareSinglePdf = async (path, title = 'PDF') => {
   const copyPath = await createShareableCopy(path);

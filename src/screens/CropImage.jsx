@@ -1,16 +1,25 @@
-import React, {useEffect} from 'react';
-import {ActivityIndicator, StatusBar, StyleSheet, Text, View} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import React, { useEffect } from 'react';
+import {
+  ActivityIndicator,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
-import {cropImage} from '../services/imageCropService';
-import {useDraftPdf} from '../context/DraftPdfContext';
+// ------------------------------ IMAGE CROP IMPORT -----------------------------
+import { cropImage } from '../services/imageCropService';
+
+// ----------------------------- CONTEXT IMPORT ------------------------
+import { useDraftPdf } from '../context/DraftPdfContext';
 
 const CropImage = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const {draftId} = route.params || {};
-  const {draftImages, updateDraftImage} = useDraftPdf();
+  const { draftId } = route.params || {};
+  const { draftImages, updateDraftImage } = useDraftPdf();
 
   useEffect(() => {
     const run = async () => {
@@ -59,9 +68,9 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    gap: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 10,
   },
   text: {
     color: '#475569',

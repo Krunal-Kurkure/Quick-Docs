@@ -10,24 +10,41 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+// ----------------- ICON IMPORT -------------------------------
 import Feather from 'react-native-vector-icons/Feather';
 
+// ----------------- CONTEXT IMPORT ----------------------------
+import { useTheme } from '../context/ThemeContext';
+import { usePdfContext } from '../context/PdfContext';
+
+// ----------------- CONTEXT IMPORT ------------------------------------------
 import EmptyState from '../components/EmptyState';
 import PdfCard from '../components/PdfCard';
 import RenameModal from '../components/RenameModal';
-import { usePdfContext } from '../context/PdfContext';
-import { useTheme } from '../context/ThemeContext';
 
 const Library = () => {
+  // --------------------------- NAVIGATION USES ------------------------------
   const navigation = useNavigation();
-  const { theme, viewMode, toggleGridList } = useTheme();
+
+  // --------------------------- CREATED PDF CONTEXT CHILDS ----------------------
   const { pdfs, loading, refreshLibrary, renamePdf, deletePdf, shareMultiple } =
     usePdfContext();
 
-  const [actionMode, setActionMode] = useState('none'); // none | edit | share | delete
+  // --------------------------- THEME CONTEXT CHILDS ----------------------
+  const { theme, viewMode, toggleGridList } = useTheme();
+
+  // ----------------- MODE (CLEAR MODES, EDIT, SHARE & DELTE) USESTATE -------------
+  const [actionMode, setActionMode] = useState('none');
+
+  // ----------------- SELECTED PDF (EDIT, SHARE & DELTE) USESTATE) ----------------
   const [selectedIds, setSelectedIds] = useState([]);
+
+  // ----------------- RENAME MODAL USESTATE ---------------------------------------
   const [renameVisible, setRenameVisible] = useState(false);
   const [renameTarget, setRenameTarget] = useState(null);
+
+  // ----------------- SHARING PDF ------------------------------------------
   const [sharing, setSharing] = useState(false);
 
   const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
@@ -36,6 +53,7 @@ const Library = () => {
     [pdfs, selectedSet],
   );
 
+  // --------------- CLEAR THE ALL SELECTED MODES -----------------------
   const clearModes = () => {
     setActionMode('none');
     setSelectedIds([]);
@@ -44,6 +62,7 @@ const Library = () => {
     setSharing(false);
   };
 
+  // ---------------- PRESS TO OPEN PDF --------------------------------
   const onPressPdf = item => {
     if (actionMode === 'none') {
       navigation.navigate('PdfViewer', { pdf: item });
@@ -66,6 +85,7 @@ const Library = () => {
     }
   };
 
+  // ---------------- EDIT PDF MODE --------------------------------
   const onEdit = () => {
     if (actionMode === 'edit') {
       clearModes();
@@ -78,6 +98,7 @@ const Library = () => {
     setSharing(false);
   };
 
+  // ---------------- SHARE PDF MODE --------------------------------
   const onShare = () => {
     if (actionMode === 'share') {
       clearModes();
@@ -89,6 +110,8 @@ const Library = () => {
     setRenameTarget(null);
     setSharing(false);
   };
+
+  // ---------------- DELETE PDF MODE --------------------------------
   const onDelete = () => {
     if (actionMode === 'delete') {
       clearModes();
@@ -101,6 +124,7 @@ const Library = () => {
     setSharing(false);
   };
 
+  // --------------- RENAME PDF FUNCTION ------------------------------
   const handleRename = async newName => {
     if (!renameTarget || !newName) return;
     await renamePdf(renameTarget.path, newName);
@@ -108,6 +132,7 @@ const Library = () => {
     clearModes();
   };
 
+  // ---------------- SHARE PDF FUNCTION --------------------------------
   const handleShare = async () => {
     if (sharing) return;
 
@@ -123,6 +148,7 @@ const Library = () => {
     }
   };
 
+  // ---------------- DELETE PDF --------------------------------
   const handleDelete = async () => {
     if (!selectedPdfs.length) {
       Alert.alert('Select PDF', 'Please select one or more PDFs to delete.');
@@ -145,6 +171,7 @@ const Library = () => {
     ]);
   };
 
+  // ---------------- PDF CARD -----------------------------
   const renderItem = ({ item }) => (
     <PdfCard
       item={item}
@@ -166,10 +193,13 @@ const Library = () => {
       style={[styles.safeAreaCont, { backgroundColor: theme.colors.primary }]}
       edges={['top']}
     >
+      {/* ------------ STATUS BAR COLORS -------------------  */}
       <StatusBar
         barStyle="light-content"
         backgroundColor={theme.colors.primary}
       />
+
+      {/* ------------ HEADER -------------------  */}
       <View style={[styles.header, { backgroundColor: theme.colors.primary }]}>
         <Text style={styles.headerText}>Easy PDF</Text>
 
@@ -211,6 +241,8 @@ const Library = () => {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* ----------------- MAIN CONTAINER -------------------  */}
       <View
         style={[
           styles.MainContainer,
@@ -304,6 +336,7 @@ const Library = () => {
           </View>
         ) : null}
 
+        {/* -------- RENAME PDF MODAL ---------- */}
         <RenameModal
           visible={renameVisible}
           currentName={renameTarget?.displayName || 'PDF'}
@@ -332,17 +365,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   header: {
+    paddingVertical: 15,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 15,
     paddingHorizontal: 15,
+    justifyContent: 'space-between',
   },
   headerText: {
+    fontSize: 18,
     fontWeight: '700',
     letterSpacing: 0.3,
     color: '#ffffff',
-    fontSize: 18,
   },
   headerBtns: {
     gap: 16,
@@ -351,8 +384,8 @@ const styles = StyleSheet.create({
   },
   Btn: {
     padding: 3,
-    borderRadius: 5,
     borderWidth: 2,
+    borderRadius: 5,
     borderColor: 'transparent',
   },
 
@@ -368,17 +401,17 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
   mainHeadingBtns: {
+    gap: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
   },
   mainHeadBtn: {
     padding: 3,
   },
   listWrap: {
     flex: 1,
-    paddingHorizontal: 15,
     paddingTop: 12,
+    paddingHorizontal: 15,
   },
   emptyList: {
     flexGrow: 1,
@@ -392,9 +425,9 @@ const styles = StyleSheet.create({
     paddingBottom: 120,
   },
   row: {
-    justifyContent: 'space-between',
-    marginBottom: 13,
     gap: 15,
+    marginBottom: 13,
+    justifyContent: 'space-between',
   },
   loadingBox: {
     flex: 1,
@@ -402,8 +435,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   emptyText: {
-    color: '#475569',
     fontSize: 14,
+    color: '#475569',
   },
 
   rowSelected: {
@@ -414,56 +447,56 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 12,
-    backgroundColor: '#F8FAFC',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#F8FAFC',
   },
   rowBody: {
-    flex: 1,
     gap: 3,
+    flex: 1,
   },
   rowTitle: {
+    fontSize: 15,
     color: '#0F172A',
     fontWeight: '700',
-    fontSize: 15,
   },
   rowTitleSelected: {
     color: '#EF4444',
   },
   rowDate: {
-    color: '#475569',
     fontSize: 12,
+    color: '#475569',
   },
   fab: {
-    position: 'absolute',
     right: 18,
     bottom: 22,
     width: 58,
     height: 58,
+    elevation: 6,
     borderRadius: 29,
     alignItems: 'center',
+    position: 'absolute',
     justifyContent: 'center',
-    elevation: 6,
   },
   bottomBar: {
-    position: 'absolute',
+    gap: 10,
     left: 15,
     right: 15,
     bottom: 18,
-    flexDirection: 'row',
-    gap: 10,
-    backgroundColor: '#ffffff',
-    borderRadius: 18,
     padding: 10,
     borderWidth: 1,
+    borderRadius: 18,
+    position: 'absolute',
+    flexDirection: 'row',
     borderColor: '#d2d8df',
+    backgroundColor: '#ffffff',
   },
   bottomBtn: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
     borderRadius: 14,
     paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#e3e6e9',
   },
   bottomPrimary: {
@@ -473,8 +506,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#EF4444',
   },
   bottomBtnText: {
-    fontWeight: '700',
     color: '#000',
+    fontWeight: '700',
   },
   bottomPrimaryText: {
     color: '#fff',

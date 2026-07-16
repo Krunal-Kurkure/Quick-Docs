@@ -1,8 +1,11 @@
 import React, { memo } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
-import Feather from 'react-native-vector-icons/Feather';
 
+// --------------------------- CONTEXT IMPORT --------------------------------
 import { useTheme } from '../context/ThemeContext';
+
+// --------------------------- ICON IMPORT -----------------------------------
+import Feather from 'react-native-vector-icons/Feather';
 
 const PdfCard = ({
   item,
@@ -16,6 +19,7 @@ const PdfCard = ({
   const { theme } = useTheme();
 
   return (
+    // --------------------------- PDF CARD -----------------------------------
     <TouchableOpacity
       activeOpacity={0.85}
       onPress={onPress}
@@ -26,6 +30,7 @@ const PdfCard = ({
         { backgroundColor: theme.colors.pdfBg },
       ]}
     >
+      {/* ------------------ IMAGE PDF ------------------------ */}
       <View
         style={[
           styles.previewBox,
@@ -110,17 +115,17 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   gridCard: {
-    width: '48%',
-    padding: 12,
     gap: 10,
+    padding: 12,
+    width: '48%',
     minHeight: 230,
   },
   listCard: {
-    width: '100%',
+    gap: 12,
     padding: 12,
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
   },
   cardSelected: {
     borderWidth: 2,
@@ -128,23 +133,23 @@ const styles = StyleSheet.create({
   },
   previewBox: {
     borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
     overflow: 'hidden',
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   previewGrid: {
     height: 200,
-    borderColor: '#000000',
-    borderWidth: 1.2,
-    borderRadius: 8,
     width: '100%',
+    borderRadius: 8,
+    borderWidth: 1.2,
+    borderColor: '#000000',
   },
   previewList: {
     width: 75,
     height: 100,
-    borderRadius: 5,
     borderWidth: 1,
+    borderRadius: 5,
     borderColor: '#000',
   },
   pdfPreview: {
@@ -153,35 +158,35 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   sizeBadgeGird: {
-    position: 'absolute',
     bottom: 5,
     right: 4,
-    backgroundColor: '#8A58FF',
+    fontSize: 10,
     color: '#fff',
     borderRadius: 5,
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-    fontSize: 10,
     fontWeight: '600',
+    paddingVertical: 3,
+    position: 'absolute',
+    paddingHorizontal: 6,
+    backgroundColor: '#8A58FF',
   },
   sizeBadgeList: {
+    fontSize: 10,
+    borderRadius: 5,
+    color: '#fff',
+    fontWeight: '600',
+    paddingVertical: 3,
+    paddingHorizontal: 6,
     alignSelf: 'flex-start',
     backgroundColor: '#8A58FF',
-    color: '#fff',
-    borderRadius: 5,
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-    fontSize: 10,
-    fontWeight: '600',
   },
   badge: {
-    position: 'absolute',
     top: 8,
     right: 8,
+    position: 'absolute',
   },
   infoBox: {
-    flex: 1,
     gap: 8,
+    flex: 1,
   },
   name: {
     fontSize: 14,

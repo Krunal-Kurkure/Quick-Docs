@@ -1,8 +1,11 @@
 import React, { createContext, useContext, useMemo, useState } from 'react';
+
+// --------------------------- FILE UTILS IMPORT -----------------------------------
 import { makeId } from '../utils/fileUtils';
 
 const DraftPdfContext = createContext(null);
 
+// --------------------------- SORT IMAGES 1,2,3 -----------------------------------
 const normalizeOrders = items =>
   [...items]
     .sort((a, b) => (a.order || 0) - (b.order || 0))
@@ -11,6 +14,7 @@ const normalizeOrders = items =>
 export const DraftPdfProvider = ({ children }) => {
   const [draftImages, setDraftImages] = useState([]);
 
+  // ------------------------- ADD IMAGES TO CREATE SCREEN -------------------------
   const addDraftImages = images => {
     const mapped = images.map((img, index) => ({
       id: makeId(),
@@ -24,6 +28,7 @@ export const DraftPdfProvider = ({ children }) => {
     setDraftImages(prev => normalizeOrders([...prev, ...mapped]));
   };
 
+  // --------------------------- UPDATE IMAGES LIKE CROP AND AGAIN USE -------------------
   const updateDraftImage = (id, patch = {}) => {
     setDraftImages(prev => {
       const updated = prev.map(item =>
@@ -33,12 +38,14 @@ export const DraftPdfProvider = ({ children }) => {
     });
   };
 
+  // --------------------------- REMOVE IMAGES FROM THE CREATE SCREEN -------------------
   const removeDraftImage = id => {
     setDraftImages(prev =>
       normalizeOrders(prev.filter(item => item.id !== id)),
     );
   };
 
+  // --------------------------- ARRANGE THE ORDER OF THE IMAGES IN CREATE SCREEN -------
   const setDraftImageOrder = (id, orderValue) => {
     const parsed = Number(orderValue);
     if (!Number.isFinite(parsed) || parsed < 1) return;
@@ -51,7 +58,7 @@ export const DraftPdfProvider = ({ children }) => {
     });
   };
 
-  // NEW: Bulk update function to support flawless arrange sorting
+  // ------------------------ BULK UPDATE THE IMAGES ---------------------------
   const updateAllDraftImages = newImagesArray => {
     setDraftImages(normalizeOrders(newImagesArray));
   };
@@ -66,7 +73,7 @@ export const DraftPdfProvider = ({ children }) => {
       updateDraftImage,
       removeDraftImage,
       setDraftImageOrder,
-      updateAllDraftImages, // <-- Exported here so CreatePdf can use it
+      updateAllDraftImages,
       clearDraft,
     }),
     [draftImages],

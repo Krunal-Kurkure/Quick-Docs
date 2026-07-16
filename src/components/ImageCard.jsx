@@ -1,5 +1,7 @@
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
+// --------------------------- ICON IMPORT -----------------------------------
 import Feather from 'react-native-vector-icons/Feather';
 
 const ImageCard = ({
@@ -13,6 +15,7 @@ const ImageCard = ({
   const isSelected = selectedIndex !== -1;
 
   return (
+    // ----------------- IMAGE CARD ------------------------
     <TouchableOpacity
       activeOpacity={0.9}
       style={[styles.card, isSelected && styles.cardArranging]}
@@ -22,6 +25,7 @@ const ImageCard = ({
         }
       }}
     >
+      {/* // ----------------- IMAGE WRAPPER ----------------- */}
       <View style={styles.imageWrapper}>
         <Image source={{ uri: item.path }} style={styles.preview} />
 
@@ -74,11 +78,11 @@ export default ImageCard;
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    borderWidth: 2,
     borderRadius: 14,
     overflow: 'hidden',
-    borderWidth: 2,
     borderColor: '#E2E8F0',
+    backgroundColor: '#FFFFFF',
   },
 
   cardArranging: {
@@ -87,9 +91,9 @@ const styles = StyleSheet.create({
 
   imageWrapper: {
     width: '100%',
+    position: 'relative',
     aspectRatio: 1 / 1.414,
     backgroundColor: '#F8FAFC',
-    position: 'relative',
   },
 
   preview: {
@@ -99,48 +103,48 @@ const styles = StyleSheet.create({
   },
 
   pageNumberBadge: {
-    position: 'absolute',
     top: 8,
     right: 8,
     width: 28,
     height: 28,
-    borderRadius: 14,
-    backgroundColor: '#0F172A',
-    alignItems: 'center',
-    justifyContent: 'center',
     borderWidth: 1,
+    borderRadius: 14,
+    position: 'absolute',
+    alignItems: 'center',
     borderColor: '#fff',
+    justifyContent: 'center',
+    backgroundColor: '#0F172A',
   },
 
   pageNumberText: {
-    color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '800',
+    color: '#FFFFFF',
   },
 
   arrangeBadgeContainer: {
-    position: 'absolute',
     top: 8,
     right: 8,
     zIndex: 4,
     elevation: 4,
+    position: 'absolute',
   },
 
   selectedCircle: {
     width: 28,
     height: 28,
+    borderWidth: 2,
     borderRadius: 14,
-    backgroundColor: '#8A58FF',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
     borderColor: '#8A58FF',
+    backgroundColor: '#8A58FF',
   },
 
   selectedNumber: {
-    color: '#FFFFFF',
-    fontWeight: '800',
     fontSize: 13,
+    fontWeight: '800',
+    color: '#FFFFFF',
   },
 
   unselectedCircle: {
@@ -154,27 +158,27 @@ const styles = StyleSheet.create({
 
   body: {
     padding: 12,
-    flexDirection: 'row',
     gap: 10,
     bottom: 0,
-    justifyContent: 'flex-end',
-    position: 'absolute',
     width: '100%',
+    flexDirection: 'row',
+    position: 'absolute',
+    justifyContent: 'flex-end',
   },
 
   iconBtn: {
     width: 38,
     height: 38,
+    borderWidth: 1,
     borderRadius: 8,
-    backgroundColor: '#F8FAFC',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
     borderColor: '#E2E8F0',
+    backgroundColor: '#F8FAFC',
   },
 
   deleteBtn: {
-    backgroundColor: '#FEF2F2',
     borderColor: '#FECACA',
+    backgroundColor: '#FEF2F2',
   },
 });

@@ -10,34 +10,52 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+// ----------------- ICON IMPORT ------------------------------------------
 import Feather from 'react-native-vector-icons/Feather';
 
+// ----------------- SHARE IMPORT ------------------------------------------
+import { shareMultiplePdfs } from '../services/shareService';
+
+// ----------------- CONTEXT IMPORT ------------------------------------------
+import { useTheme } from '../context/ThemeContext';
 import { useOpenWithPdfContext } from '../context/OpenWithPdfContext';
+
+// --------------------------- COMPONENTS IMPORT -----------------------------------
 import PdfCard from '../components/PdfCard';
 import EmptyState from '../components/EmptyState';
 import RenameModal from '../components/RenameModal';
-import { shareMultiplePdfs } from '../services/shareService';
-import { useTheme } from '../context/ThemeContext';
 
 const Home = () => {
+  // --------------------------- NAVIGATION USES ------------------------------
   const navigation = useNavigation();
+
+  // --------------------------- IMPORTED PDF CONTEXT CHILDS ----------------------
   const { openWithPdfs, loading, renamePdf, removePdfs } =
     useOpenWithPdfContext();
 
-  const [actionMode, setActionMode] = useState('none'); // none | edit | share | delete
+  // ----------------------- THEME CONTEXT CHILD --------------------------------
+  const { theme, viewMode, toggleGridList } = useTheme();
+
+  // ----------------- MODE (CLEAR MODES, EDIT, SHARE & DELTE) USESTATE -------------
+  const [actionMode, setActionMode] = useState('none');
+
+  // ----------------- SELECTED PDF (EDIT, SHARE & DELTE) USESTATE) ----------------
   const [selectedIds, setSelectedIds] = useState([]);
+
+  // ----------------- RENAME MODAL USESTATE ---------------------------------------------
   const [renameVisible, setRenameVisible] = useState(false);
   const [renameTarget, setRenameTarget] = useState(null);
-  const [sharing, setSharing] = useState(false);
 
-  // Pull the theme data and toggle function from our Context
-  const { theme, viewMode, toggleGridList } = useTheme();
+  // ----------------- SHARING PDF -------------------------------------------
+  const [sharing, setSharing] = useState(false);
 
   const selectedPdfs = useMemo(
     () => openWithPdfs.filter(item => selectedIds.includes(item.id)),
     [openWithPdfs, selectedIds],
   );
 
+  // --------------- CLEAR THE ALL SELECTED MODES ---------------------------
   const clearModes = () => {
     setActionMode('none');
     setSelectedIds([]);
@@ -46,6 +64,7 @@ const Home = () => {
     setSharing(false);
   };
 
+  // ---------------- EDIT PDF MODE --------------------------------
   const onEditPress = () => {
     if (actionMode === 'edit') {
       clearModes();
@@ -58,6 +77,7 @@ const Home = () => {
     setSharing(false);
   };
 
+  // ---------------- SHARE PDF MODE --------------------------------
   const onSharePress = () => {
     if (actionMode === 'share') {
       clearModes();
@@ -70,6 +90,7 @@ const Home = () => {
     setSharing(false);
   };
 
+  // ---------------- DELETE PDF MODE --------------------------------
   const onDeletePress = () => {
     if (actionMode === 'delete') {
       clearModes();
@@ -82,6 +103,7 @@ const Home = () => {
     setSharing(false);
   };
 
+  // ---------------- PRESS TO OPEN PDF --------------------------------
   const onPdfPress = item => {
     if (actionMode === 'none') {
       navigation.navigate('PdfViewer', { pdf: item });
@@ -105,12 +127,14 @@ const Home = () => {
     }
   };
 
+  // --------------- RENAME PDF FUNCTION ------------------------------
   const handleRenameSave = async newName => {
     if (!renameTarget || !newName) return;
     await renamePdf(renameTarget.path, newName);
     clearModes();
   };
 
+  // ---------------- SHARE PDF FUNCTION --------------------------------
   const handleShareSelected = async () => {
     if (sharing) return;
 
@@ -132,6 +156,7 @@ const Home = () => {
     }
   };
 
+  // ---------------- DELETE PDF --------------------------------
   const handleDeleteSelected = async () => {
     const files = selectedPdfs.map(item => item?.path).filter(Boolean);
 
@@ -157,6 +182,7 @@ const Home = () => {
     );
   };
 
+  // ---------------- PDF CARD -----------------------------
   const renderItem = ({ item }) => (
     <PdfCard
       item={item}
@@ -178,10 +204,13 @@ const Home = () => {
       style={[styles.safeAreaCont, { backgroundColor: theme.colors.primary }]}
       edges={['top']}
     >
+      {/* ------------ STATUS BAR COLORS -------------------  */}
       <StatusBar
         barStyle={'light-content'}
         backgroundColor={theme.colors.primary}
       />
+
+      {/* ------------ HEADER -------------------  */}
       <View style={[styles.header, { backgroundColor: theme.colors.primary }]}>
         <Text style={styles.headerText}>Easy PDF</Text>
 
@@ -223,6 +252,8 @@ const Home = () => {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* ----------------- MAIN CONTAINER -------------------  */}
       <View
         style={[
           styles.MainContainer,
@@ -317,6 +348,7 @@ const Home = () => {
           </View>
         ) : null}
 
+        {/* -------- RENAME PDF MODAL ---------- */}
         <RenameModal
           visible={renameVisible}
           currentName={renameTarget?.displayName || 'PDF'}
@@ -347,15 +379,15 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingVertical: 15,
     paddingHorizontal: 15,
+    justifyContent: 'space-between',
   },
   headerText: {
-    fontWeight: '700',
-    letterSpacing: 0.3,
-    color: '#ffffff',
     fontSize: 18,
+    fontWeight: '700',
+    color: '#ffffff',
+    letterSpacing: 0.3,
   },
   headerBtns: {
     gap: 16,
@@ -364,8 +396,8 @@ const styles = StyleSheet.create({
   },
   Btn: {
     padding: 3,
-    borderRadius: 5,
     borderWidth: 2,
+    borderRadius: 5,
   },
   mainHeading: {
     paddingVertical: 10,
@@ -379,9 +411,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
   mainHeadingBtns: {
+    gap: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
   },
   mainHeadBtn: {
     padding: 3,
@@ -394,9 +426,9 @@ const styles = StyleSheet.create({
     paddingBottom: 120,
   },
   row: {
-    justifyContent: 'space-between',
-    marginBottom: 13,
     gap: 15,
+    marginBottom: 13,
+    justifyContent: 'space-between',
   },
   loadingBox: {
     flex: 1,
@@ -404,28 +436,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   emptyText: {
-    color: '#475569',
     fontSize: 14,
+    color: '#475569',
   },
   bottomBar: {
-    position: 'absolute',
+    gap: 10,
     left: 15,
     right: 15,
     bottom: 18,
-    flexDirection: 'row',
-    gap: 10,
-    backgroundColor: '#ffffff',
-    borderRadius: 18,
     padding: 10,
     borderWidth: 1,
+    borderRadius: 18,
+    position: 'absolute',
+    flexDirection: 'row',
     borderColor: '#d2d8df',
+    backgroundColor: '#ffffff',
   },
   bottomActionBtn: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
     borderRadius: 14,
     paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#e3e6e9',
   },
   bottomPrimaryBtn: {

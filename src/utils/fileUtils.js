@@ -21,11 +21,13 @@ export const toFileUri = (path = '') => {
 };
 
 export const sanitizeFileName = (name = 'PDF') => {
-  return String(name)
-    .replace(/\.pdf$/i, '')
-    .replace(/[\\/:*?"<>|]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim() || 'PDF';
+  return (
+    String(name)
+      .replace(/\.pdf$/i, '')
+      .replace(/[\\/:*?"<>|]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim() || 'PDF'
+  );
 };
 
 export const formatPdfDate = dateInput => {

@@ -1,10 +1,14 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import Feather from 'react-native-vector-icons/Feather';
+
+// --------------------------- CONTEXT IMPORT -----------------------------------
 import { useTheme } from '../context/ThemeContext';
 
+// --------------------------- ICON IMPORT -----------------------------------
+import Feather from 'react-native-vector-icons/Feather';
+
 const EmptyState = ({ title, subtitle }) => {
-  // Pull the theme data and toggle function from our Context
+  // --------------------------- THEME CHILD -----------------------------------
   const { theme } = useTheme();
 
   return (
@@ -22,11 +26,11 @@ export default EmptyState;
 
 const styles = StyleSheet.create({
   container: {
+    gap: 10,
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
     paddingHorizontal: 16,
-    gap: 10,
+    justifyContent: 'center',
   },
   title: {
     fontSize: 16,
