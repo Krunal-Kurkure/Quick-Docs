@@ -2,7 +2,9 @@ import ImagePicker from 'react-native-image-crop-picker';
 
 const baseOptions = {
   mediaType: 'photo',
-  compressImageQuality: 0.6,
+  compressImageQuality: 0.5,
+  compressImageMaxWidth: 1200, 
+  compressImageMaxHeight: 1600,
   includeExif: false,
   freeStyleCropEnabled: false,
 };
@@ -10,6 +12,7 @@ const baseOptions = {
 export const pickImagesFromGallery = async () => {
   const result = await ImagePicker.openPicker({
     ...baseOptions,
+    maxFiles: 30,
     multiple: true,
     cropping: false,
   });

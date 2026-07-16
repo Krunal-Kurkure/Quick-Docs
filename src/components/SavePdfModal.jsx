@@ -9,9 +9,9 @@ import {
   View,
 } from 'react-native';
 
-const [value, setValue] = useState(defaultName);
-
 const SavePdfModal = ({ visible, defaultName = '', onClose, onSave }) => {
+
+  const [value, setValue] = useState(defaultName);
   useEffect(() => {
     if (visible) setValue(defaultName);
   }, [visible, defaultName]);
