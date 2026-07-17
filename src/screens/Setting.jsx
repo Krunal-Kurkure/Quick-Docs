@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   StatusBar,
   ScrollView,
+  Linking,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -46,6 +48,20 @@ const Setting = () => {
     },
   ];
 
+  // ------------------------------- EXTARNAL LINK OPEN FUNCTION -------------------------------------
+  const openExternalLink = async url => {
+    try {
+      // Attempt to open the URL directly without asking for permission first
+      await Linking.openURL(url);
+    } catch (error) {
+      console.log('Failed to open link:', error);
+      Alert.alert(
+        'Link Error',
+        'Could not open this link. Please ensure you have a web browser or email app installed.',
+      );
+    }
+  };
+
   return (
     <SafeAreaView
       style={[styles.safeArea, { backgroundColor: theme.colors.background }]}
@@ -54,6 +70,8 @@ const Setting = () => {
         barStyle={'light-content'}
         backgroundColor={theme.colors.primary}
       />
+
+      {/* ------------------------- HEADER --------------------------------  */}
       <View style={styles.header}>
         <Text style={styles.headerText}>Settings</Text>
 
@@ -65,6 +83,8 @@ const Setting = () => {
           <Feather name="coffee" size={18} color="#fff" />
         </TouchableOpacity>
       </View>
+
+      {/* --------------------------- MAIN CONTAINER ------------------------------------ */}
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
@@ -182,7 +202,8 @@ const Setting = () => {
               ]}
             />
             <Text style={[styles.stepText, { color: theme.colors.subText }]}>
-              Rename, share, delete, and view PDFs from the Opened Pdf Tab or Library Tab as per Pdf's.
+              Rename, share, delete, and view PDFs from the Opened Pdf Tab or
+              Library Tab as per Pdf's.
             </Text>
           </View>
         </View>
@@ -276,14 +297,39 @@ const Setting = () => {
           </Text>
 
           <View style={styles.socialRow}>
-            <TouchableOpacity style={styles.socialBtn} activeOpacity={0.8}>
-              <Feather name="instagram" size={16} color="#fff" />
-              <Text style={styles.socialBtnText}>Instagram</Text>
+            <TouchableOpacity
+              style={styles.socialBtn}
+              activeOpacity={0.8}
+              onPress={() =>
+                openExternalLink(
+                  'https://krunal-kurkure.github.io/krunalkurkure-portfolio/index1.html',
+                )
+              }
+            >
+              <Feather name="globe" size={16} color="#fff" />
+              <Text style={styles.socialBtnText}>Website</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.socialBtn} activeOpacity={0.8}>
+            <TouchableOpacity
+              style={styles.socialBtn}
+              activeOpacity={0.8}
+              onPress={() =>
+                openExternalLink('https://github.com/Krunal-Kurkure')
+              }
+            >
               <Feather name="github" size={16} color="#fff" />
               <Text style={styles.socialBtnText}>GitHub</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.socialBtn}
+              activeOpacity={0.8}
+              onPress={() =>
+                openExternalLink('https://leetcode.com/u/Krunal_Arvind_Kurkure')
+              }
+            >
+              <Feather name="code" size={16} color="#fff" />
+              <Text style={styles.socialBtnText}>LeetCode</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -303,8 +349,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   contentContainer: {
-    paddingVertical: 15,
     gap: 18,
+    paddingVertical: 15,
   },
   header: {
     paddingVertical: 15,
@@ -322,16 +368,16 @@ const styles = StyleSheet.create({
   },
   Btn: {
     padding: 4,
-    borderRadius: 8,
     borderWidth: 2,
-    backgroundColor: '#0000002f',
+    borderRadius: 8,
     borderColor: '#fff',
+    backgroundColor: '#0000002f',
   },
   card: {
+    padding: 14,
     borderWidth: 1,
     borderRadius: 14,
     overflow: 'hidden',
-    padding: 14,
   },
   settingRow: {
     flexDirection: 'row',
@@ -339,11 +385,11 @@ const styles = StyleSheet.create({
   iconBox: {
     width: 42,
     height: 42,
+    marginRight: 12,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#F2ECFF',
-    marginRight: 12,
   },
   textContainer: {
     flex: 1,
@@ -362,25 +408,25 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   cardTitleRow: {
+    gap: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
   },
   cardTitle: {
     fontSize: 16,
     fontWeight: '700',
   },
   stepItem: {
+    marginTop: 10,
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginTop: 10,
   },
   stepDot: {
     width: 8,
     height: 8,
-    borderRadius: 4,
     marginTop: 7,
     marginRight: 10,
+    borderRadius: 4,
   },
   stepText: {
     flex: 1,
@@ -390,13 +436,13 @@ const styles = StyleSheet.create({
   faqItem: {
     marginTop: 12,
     paddingBottom: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#D8D8D8',
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   faqQuestion: {
     fontSize: 14,
-    fontWeight: '700',
     marginBottom: 4,
+    fontWeight: '700',
   },
   faqAnswer: {
     fontSize: 13,
@@ -412,22 +458,22 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   socialRow: {
-    flexDirection: 'row',
     gap: 10,
-    flexWrap: 'wrap',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   socialBtn: {
+    gap: 8,
+    borderRadius: 10,
+    paddingVertical: 10,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    paddingHorizontal: 12,
     backgroundColor: '#8A58FF',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 10,
   },
   socialBtnText: {
-    color: '#fff',
     fontSize: 13,
+    color: '#fff',
     fontWeight: '600',
   },
 });

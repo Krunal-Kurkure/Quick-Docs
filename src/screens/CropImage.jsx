@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Text,
   View,
+  InteractionManager, // <-- Added for smooth navigation transitions
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -21,33 +22,31 @@ const CropImage = () => {
   const { draftId } = route.params || {};
   const { draftImages, updateDraftImage } = useDraftPdf();
 
-  const hasRunRef = useRef(false);
-  const isClosingRef = useRef(false);
+  // 1. Keep a fresh reference of draftImages to avoid infinite useEffect loops
+  // while ensuring we always have the latest state if the user re-enters.
+  const draftImagesRef = useRef(draftImages);
+  useEffect(() => {
+    draftImagesRef.current = draftImages;
+  }, [draftImages]);
 
-  const goBackSafely = () => {
-    if (isClosingRef.current) return;
-    isClosingRef.current = true;
-
-    requestAnimationFrame(() => {
-      if (navigation.canGoBack()) {
-        navigation.goBack();
-      } else {
-        navigation.navigate('CreatePdf', { draftId });
-      }
-    });
-  };
+  // 2. Single processing ref that resets on unmount
+  const isProcessingRef = useRef(false);
 
   useEffect(() => {
-    if (hasRunRef.current) return;
-    hasRunRef.current = true;
-
     let isMounted = true;
 
-    const runCrop = async () => {
-      const target = draftImages.find(item => item.id === draftId);
+    const handleCrop = async () => {
+      // Prevent double firing, especially in React 18 StrictMode
+      if (isProcessingRef.current) return;
+      isProcessingRef.current = true;
+
+      const target = draftImagesRef.current.find(item => item.id === draftId);
 
       if (!target) {
-        goBackSafely();
+        if (isMounted) {
+          if (navigation.canGoBack()) navigation.goBack();
+          else navigation.navigate('CreatePdf', { draftId });
+        }
         return;
       }
 
@@ -57,29 +56,51 @@ const CropImage = () => {
         if (!isMounted) return;
 
         if (result?.path) {
-          updateDraftImage(draftId, {
-            path: result.path,
-            width: result.width || target.width,
-            height: result.height || target.height,
+          // 3. Navigate back FIRST so the transition starts smoothly
+          if (navigation.canGoBack()) {
+            navigation.goBack();
+          } else {
+            navigation.navigate('CreatePdf', { draftId });
+          }
+
+          // 4. Defer the heavy context update until AFTER the navigation animation finishes
+          InteractionManager.runAfterInteractions(() => {
+            updateDraftImage(draftId, {
+              path: result.path,
+              width: result.width || target.width,
+              height: result.height || target.height,
+            });
           });
+
+          return; // Exit early so the finally block doesn't trigger a second navigation
         }
       } catch (e) {
         // User cancelled crop or cropper failed.
-      } finally {
-        if (isMounted) {
-          setTimeout(() => {
-            goBackSafely();
-          }, 80);
+        console.log('Crop cancelled or failed', e);
+      }
+
+      // If crop failed, cancelled, or returned no path, just go back.
+      if (isMounted) {
+        if (navigation.canGoBack()) {
+          navigation.goBack();
+        } else {
+          navigation.navigate('CreatePdf', { draftId });
         }
       }
     };
 
-    runCrop();
+    // 5. Add a tiny delay to ensure the screen finishes its slide-in animation
+    // before the heavy native cropper module blocks the JS thread.
+    const timeoutId = setTimeout(() => {
+      handleCrop();
+    }, 100);
 
     return () => {
       isMounted = false;
+      clearTimeout(timeoutId);
+      // 6. CRUCIAL: Reset the ref on unmount so re-cropping works on subsequent visits
+      isProcessingRef.current = false;
     };
-    // IMPORTANT: do not add draftImages here
   }, [draftId, navigation, updateDraftImage]);
 
   return (
