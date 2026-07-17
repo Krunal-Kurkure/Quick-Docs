@@ -6,37 +6,71 @@ import {
   Switch,
   TouchableOpacity,
   StatusBar,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 
 // ----------------- ICON IMPORT ------------------------------------------
 import Feather from 'react-native-vector-icons/Feather';
 
 // ----------------- CONTEXT IMPORT ------------------------------------------
 import { useTheme } from '../context/ThemeContext';
+
 const Setting = () => {
+  const navigation = useNavigation();
+
   // ----------------------- THEME CONTEXT CHILD --------------------------------
   const { theme, toggleTheme } = useTheme();
+
+  const faqData = [
+    {
+      q: '1. How do I import a PDF?',
+      a: 'Use the share or open-with option from other apps and select this app to import the PDF in Easy Pdf app.',
+    },
+    {
+      q: '2. Can I create a PDF from images?',
+      a: 'Yes. Open the Library tab, tap the " + " button, pick gallery or camera images, arrange them, crop them, and create the PDF.',
+    },
+    {
+      q: '3. Can I rename or delete files?',
+      a: 'Yes. You can rename, share, and delete PDFs from inside the app.',
+    },
+    {
+      q: '4. Can I switch between grid and list view?',
+      a: 'Yes. The Opened Pdf & Library Tabs supports both grid and list layouts for better viewing.',
+    },
+    {
+      q: '5. Does the app store my personal data?',
+      a: 'No. The app is designed to work locally just for your device and does not collect personal data.',
+    },
+  ];
 
   return (
     <SafeAreaView
       style={[styles.safeArea, { backgroundColor: theme.colors.background }]}
     >
-      {/* ------------ STATUS BAR COLORS -------------------  */}
       <StatusBar
         barStyle={'light-content'}
         backgroundColor={theme.colors.primary}
       />
-
-      {/* ------------ HEADER -------------------  */}
       <View style={styles.header}>
         <Text style={styles.headerText}>Settings</Text>
 
-        <TouchableOpacity style={styles.Btn}>
-          <Feather name="dollar-sign" size={20} color="#fff" />
+        <TouchableOpacity
+          style={styles.Btn}
+          onPress={() => navigation.navigate('Coffee')}
+          activeOpacity={0.8}
+        >
+          <Feather name="coffee" size={18} color="#fff" />
         </TouchableOpacity>
       </View>
-      <View style={styles.container}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Theme Card */}
         <View
           style={[
             styles.card,
@@ -48,9 +82,17 @@ const Setting = () => {
         >
           <TouchableOpacity
             onPress={toggleTheme}
-            activeOpacity={1}
+            activeOpacity={0.9}
             style={styles.settingRow}
           >
+            <View style={styles.iconBox}>
+              <Feather
+                name={theme.isDarkMode ? 'moon' : 'sun'}
+                size={20}
+                color={theme.colors.primary}
+              />
+            </View>
+
             <View style={styles.textContainer}>
               <Text style={[styles.settingLabel, { color: theme.colors.text }]}>
                 {theme.isDarkMode ? 'Dark Mode On' : 'Light Mode On'}
@@ -71,7 +113,181 @@ const Setting = () => {
             />
           </TouchableOpacity>
         </View>
-      </View>
+
+        {/* How to Use Card */}
+        <View
+          style={[
+            styles.card,
+            {
+              backgroundColor: theme.colors.card,
+              borderColor: theme.colors.border,
+            },
+          ]}
+        >
+          <View style={styles.cardHeader}>
+            <View style={styles.cardTitleRow}>
+              <Feather
+                name="help-circle"
+                size={20}
+                color={theme.colors.primary}
+              />
+              <Text style={[styles.cardTitle, { color: theme.colors.text }]}>
+                How to use
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.stepItem}>
+            <View
+              style={[
+                styles.stepDot,
+                { backgroundColor: theme.colors.primary },
+              ]}
+            />
+            <Text style={[styles.stepText, { color: theme.colors.subText }]}>
+              Import PDF files from other apps directly into the app.
+            </Text>
+          </View>
+
+          <View style={styles.stepItem}>
+            <View
+              style={[
+                styles.stepDot,
+                { backgroundColor: theme.colors.primary },
+              ]}
+            />
+            <Text style={[styles.stepText, { color: theme.colors.subText }]}>
+              Create a new PDF from gallery images or camera photos using the
+              Library tab.
+            </Text>
+          </View>
+
+          <View style={styles.stepItem}>
+            <View
+              style={[
+                styles.stepDot,
+                { backgroundColor: theme.colors.primary },
+              ]}
+            />
+            <Text style={[styles.stepText, { color: theme.colors.subText }]}>
+              Arrange, crop, and unselect images before generating the PDF.
+            </Text>
+          </View>
+
+          <View style={styles.stepItem}>
+            <View
+              style={[
+                styles.stepDot,
+                { backgroundColor: theme.colors.primary },
+              ]}
+            />
+            <Text style={[styles.stepText, { color: theme.colors.subText }]}>
+              Rename, share, delete, and view PDFs from the Opened Pdf Tab or Library Tab as per Pdf's.
+            </Text>
+          </View>
+        </View>
+
+        {/* FAQ Card */}
+        <View
+          style={[
+            styles.card,
+            {
+              backgroundColor: theme.colors.card,
+              borderColor: theme.colors.border,
+            },
+          ]}
+        >
+          <View style={styles.cardHeader}>
+            <View style={styles.cardTitleRow}>
+              <Feather
+                name="message-circle"
+                size={20}
+                color={theme.colors.primary}
+              />
+              <Text style={[styles.cardTitle, { color: theme.colors.text }]}>
+                FAQ's
+              </Text>
+            </View>
+          </View>
+
+          {faqData.map((item, index) => (
+            <View key={index} style={styles.faqItem}>
+              <Text style={[styles.faqQuestion, { color: theme.colors.text }]}>
+                {item.q}
+              </Text>
+              <Text style={[styles.faqAnswer, { color: theme.colors.subText }]}>
+                {item.a}
+              </Text>
+            </View>
+          ))}
+        </View>
+
+        {/* Terms and Conditions Card */}
+        <View
+          style={[
+            styles.card,
+            {
+              backgroundColor: theme.colors.card,
+              borderColor: theme.colors.border,
+            },
+          ]}
+        >
+          <View style={styles.cardHeader}>
+            <View style={styles.cardTitleRow}>
+              <Feather name="shield" size={20} color={theme.colors.primary} />
+              <Text style={[styles.cardTitle, { color: theme.colors.text }]}>
+                Terms and Conditions
+              </Text>
+            </View>
+          </View>
+
+          <Text style={[styles.termsText, { color: theme.colors.subText }]}>
+            This app is designed for personal PDF reading and file management.
+            The app does not collect, store, or sell your personal data. Files
+            remain on your device unless you choose to share them. By using the
+            app, you agree to use it responsibly and in compliance with your
+            device permissions and local laws.
+          </Text>
+        </View>
+
+        {/* Follow Us Card */}
+        <View
+          style={[
+            styles.card,
+            {
+              backgroundColor: theme.colors.card,
+              borderColor: theme.colors.border,
+            },
+          ]}
+        >
+          <View style={styles.cardHeader}>
+            <View style={styles.cardTitleRow}>
+              <Feather name="users" size={20} color={theme.colors.primary} />
+              <Text style={[styles.cardTitle, { color: theme.colors.text }]}>
+                Follow us
+              </Text>
+            </View>
+          </View>
+
+          <Text style={[styles.followText, { color: theme.colors.subText }]}>
+            Stay connected for updates, improvements, and new features. Follow
+            us on our social platforms to get the latest app news and
+            announcements.
+          </Text>
+
+          <View style={styles.socialRow}>
+            <TouchableOpacity style={styles.socialBtn} activeOpacity={0.8}>
+              <Feather name="instagram" size={16} color="#fff" />
+              <Text style={styles.socialBtnText}>Instagram</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.socialBtn} activeOpacity={0.8}>
+              <Feather name="github" size={16} color="#fff" />
+              <Text style={styles.socialBtnText}>GitHub</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -84,7 +300,11 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 15,
+    paddingHorizontal: 15,
+  },
+  contentContainer: {
+    paddingVertical: 15,
+    gap: 18,
   },
   header: {
     paddingVertical: 15,
@@ -101,22 +321,29 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
   Btn: {
-    padding: 3,
-    borderRadius: 5,
+    padding: 4,
+    borderRadius: 8,
     borderWidth: 2,
+    backgroundColor: '#0000002f',
     borderColor: '#fff',
   },
   card: {
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 14,
     overflow: 'hidden',
+    padding: 14,
   },
   settingRow: {
-    paddingVertical: 16,
     flexDirection: 'row',
+  },
+  iconBox: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
     alignItems: 'center',
-    paddingHorizontal: 15,
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    backgroundColor: '#F2ECFF',
+    marginRight: 12,
   },
   textContainer: {
     flex: 1,
@@ -125,9 +352,82 @@ const styles = StyleSheet.create({
   settingLabel: {
     fontSize: 17,
     marginBottom: 4,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   settingDesc: {
     fontSize: 13,
+    lineHeight: 18,
+  },
+  cardHeader: {
+    marginBottom: 10,
+  },
+  cardTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  stepItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginTop: 10,
+  },
+  stepDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginTop: 7,
+    marginRight: 10,
+  },
+  stepText: {
+    flex: 1,
+    fontSize: 13,
+    lineHeight: 19,
+  },
+  faqItem: {
+    marginTop: 12,
+    paddingBottom: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#D8D8D8',
+  },
+  faqQuestion: {
+    fontSize: 14,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  faqAnswer: {
+    fontSize: 13,
+    lineHeight: 19,
+  },
+  termsText: {
+    fontSize: 13,
+    lineHeight: 20,
+  },
+  followText: {
+    fontSize: 13,
+    lineHeight: 20,
+    marginBottom: 12,
+  },
+  socialRow: {
+    flexDirection: 'row',
+    gap: 10,
+    flexWrap: 'wrap',
+  },
+  socialBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#8A58FF',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  socialBtnText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '600',
   },
 });

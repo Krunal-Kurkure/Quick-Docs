@@ -25,7 +25,7 @@ import Setting from './src/screens/Setting';
 import PdfViewer from './src/screens/PdfViewer';
 import CreatePdf from './src/screens/CreatePdf';
 import CropImage from './src/screens/CropImage';
-
+import Coffee from './src/screens/Coffee';
 // --------------------------- CONTEXT IMPORT -----------------------------------
 import {
   OpenWithPdfProvider,
@@ -131,6 +131,7 @@ export default function App() {
                   <Stack.Screen name="PdfViewer" component={PdfViewer} />
                   <Stack.Screen name="CreatePdf" component={CreatePdf} />
                   <Stack.Screen name="CropImage" component={CropImage} />
+                   <Stack.Screen name="Coffee" component={Coffee} />
                 </Stack.Navigator>
               </NavigationContainer>
             </DraftPdfProvider>

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   ActivityIndicator,
   StatusBar,
@@ -21,16 +21,41 @@ const CropImage = () => {
   const { draftId } = route.params || {};
   const { draftImages, updateDraftImage } = useDraftPdf();
 
-  useEffect(() => {
-    const run = async () => {
-      const target = draftImages.find(item => item.id === draftId);
-      if (!target) {
+  const hasRunRef = useRef(false);
+  const isClosingRef = useRef(false);
+
+  const goBackSafely = () => {
+    if (isClosingRef.current) return;
+    isClosingRef.current = true;
+
+    requestAnimationFrame(() => {
+      if (navigation.canGoBack()) {
         navigation.goBack();
+      } else {
+        navigation.navigate('CreatePdf', { draftId });
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (hasRunRef.current) return;
+    hasRunRef.current = true;
+
+    let isMounted = true;
+
+    const runCrop = async () => {
+      const target = draftImages.find(item => item.id === draftId);
+
+      if (!target) {
+        goBackSafely();
         return;
       }
 
       try {
         const result = await cropImage(target.path);
+
+        if (!isMounted) return;
+
         if (result?.path) {
           updateDraftImage(draftId, {
             path: result.path,
@@ -39,14 +64,23 @@ const CropImage = () => {
           });
         }
       } catch (e) {
-        // user cancelled crop
+        // User cancelled crop or cropper failed.
       } finally {
-        navigation.goBack();
+        if (isMounted) {
+          setTimeout(() => {
+            goBackSafely();
+          }, 80);
+        }
       }
     };
 
-    run();
-  }, [draftId, draftImages, navigation, updateDraftImage]);
+    runCrop();
+
+    return () => {
+      isMounted = false;
+    };
+    // IMPORTANT: do not add draftImages here
+  }, [draftId, navigation, updateDraftImage]);
 
   return (
     <SafeAreaView style={styles.safeArea}>

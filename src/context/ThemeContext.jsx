@@ -68,7 +68,7 @@ export const ThemeProvider = ({ children }) => {
       background: isDarkMode ? '#121212' : '#F5F5F7',
       card: isDarkMode ? '#1E1E1E' : '#FFFFFF',
       text: isDarkMode ? '#ffffffda' : '#000000',
-      subText: isDarkMode ? '#A0A0A0' : '#8E8E93',
+      subText: isDarkMode ? '#A0A0A0' : '#49494e',
       border: isDarkMode ? '#333333' : '#E5E5EA',
       primary: '#8A58FF',
       tabActTint: isDarkMode ? '#ffffffda' : '#8A58FF',

@@ -2,9 +2,9 @@ import ImagePicker from 'react-native-image-crop-picker';
 
 const baseOptions = {
   mediaType: 'photo',
-  compressImageQuality: 0.5,
-  compressImageMaxWidth: 1200, 
-  compressImageMaxHeight: 1600,
+  compressImageQuality: 0.6,
+  compressImageMaxWidth: 1240,
+  compressImageMaxHeight: 1754,
   includeExif: false,
   freeStyleCropEnabled: false,
 };

@@ -7,8 +7,8 @@ export const cropImage = async (path, options = {}) => {
 
   return ImagePicker.openCropper({
     path,
-    width: options.width || 1200,
-    height: options.height || 1600,
+    width: options.width || 1240,
+    height: options.height || 1754,
     freeStyleCropEnabled: true,
     cropperToolbarTitle: 'Crop Image',
     showCropGuidelines: true,
