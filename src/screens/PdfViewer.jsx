@@ -10,6 +10,7 @@ import {
   TextInput,
   Keyboard,
   Alert,
+  Linking,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
@@ -151,6 +152,19 @@ const PdfViewer = () => {
     }, 150);
   };
 
+  // ------------------------------- EXTERNAL LINK OPEN FUNCTION -------------------------------------
+  const openExternalLink = async url => {
+    try {
+      await Linking.openURL(url);
+    } catch (error) {
+      console.log('Failed to open link:', error);
+      Alert.alert(
+        'Link Error',
+        'Could not open this link. Please ensure you have a web browser or email app installed.',
+      );
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeAreaCont} edges={['top', 'bottom']}>
       <StatusBar barStyle="light-content" backgroundColor="#8A58FF" />
@@ -272,6 +286,7 @@ const PdfViewer = () => {
               maxScale={4.0}
               spacing={12}
               backgroundColor="#E6E6E6"
+              onPressLink={uri => openExternalLink(uri)}
               onLoadComplete={numberOfPages => {
                 setTotalPages(numberOfPages);
                 setLoading(false);
