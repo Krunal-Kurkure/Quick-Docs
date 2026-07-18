@@ -48,6 +48,24 @@ const Setting = () => {
     },
   ];
 
+  const useData = [
+    {
+      ans: 'Import PDF files from other apps directly into the app.',
+    },
+    {
+      ans: 'Open a PDF by clicking on it. Use the file icon 📄 to enable paging to move through pages, or enter a page number to jump directly on the specific page.',
+    },
+    {
+      ans: 'Create a new PDF from gallery images or camera photos using the Library tab.',
+    },
+    {
+      ans: 'Arrange, crop, and unselect images before generating the PDF.',
+    },
+    {
+      ans: 'Rename, share, delete, and view PDFs from the Opened Pdf Tab or Library Tab as per Pdfs.',
+    },
+  ];
+
   // ------------------------------- EXTARNAL LINK OPEN FUNCTION -------------------------------------
   const openExternalLink = async url => {
     try {
@@ -157,55 +175,19 @@ const Setting = () => {
             </View>
           </View>
 
-          <View style={styles.stepItem}>
-            <View
-              style={[
-                styles.stepDot,
-                { backgroundColor: theme.colors.primary },
-              ]}
-            />
-            <Text style={[styles.stepText, { color: theme.colors.subText }]}>
-              Import PDF files from other apps directly into the app.
-            </Text>
-          </View>
-
-          <View style={styles.stepItem}>
-            <View
-              style={[
-                styles.stepDot,
-                { backgroundColor: theme.colors.primary },
-              ]}
-            />
-            <Text style={[styles.stepText, { color: theme.colors.subText }]}>
-              Create a new PDF from gallery images or camera photos using the
-              Library tab.
-            </Text>
-          </View>
-
-          <View style={styles.stepItem}>
-            <View
-              style={[
-                styles.stepDot,
-                { backgroundColor: theme.colors.primary },
-              ]}
-            />
-            <Text style={[styles.stepText, { color: theme.colors.subText }]}>
-              Arrange, crop, and unselect images before generating the PDF.
-            </Text>
-          </View>
-
-          <View style={styles.stepItem}>
-            <View
-              style={[
-                styles.stepDot,
-                { backgroundColor: theme.colors.primary },
-              ]}
-            />
-            <Text style={[styles.stepText, { color: theme.colors.subText }]}>
-              Rename, share, delete, and view PDFs from the Opened Pdf Tab or
-              Library Tab as per Pdf's.
-            </Text>
-          </View>
+          {useData.map((item, index) => (
+            <View key={index} style={styles.stepItem}>
+              <View
+                style={[
+                  styles.stepDot,
+                  { backgroundColor: theme.colors.primary },
+                ]}
+              />
+              <Text style={[styles.stepText, { color: theme.colors.subText }]}>
+                {item.ans}
+              </Text>
+            </View>
+          ))}
         </View>
 
         {/* FAQ Card */}
