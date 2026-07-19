@@ -65,7 +65,7 @@ const Library = () => {
   // ---------------- PRESS TO OPEN PDF --------------------------------
   const onPressPdf = item => {
     if (actionMode === 'none') {
-      navigation.navigate('PdfViewer', { pdf: item });
+      navigation.navigate('PdfViewer', { pdf: item, pdfType: 'created' });
       return;
     }
 
@@ -201,7 +201,7 @@ const Library = () => {
 
       {/* ------------ HEADER -------------------  */}
       <View style={[styles.header, { backgroundColor: theme.colors.primary }]}>
-        <Text style={styles.headerText}>Easy PDF</Text>
+        <Text style={styles.headerText}>Pdf Library</Text>
 
         <View style={styles.headerBtns}>
           <TouchableOpacity

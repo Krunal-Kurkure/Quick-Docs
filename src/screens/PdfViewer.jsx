@@ -1,18 +1,18 @@
-import React, { useMemo, useState, useRef, useEffect } from 'react';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
+  Animated,
+  Keyboard,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
-  TextInput,
-  Keyboard,
-  Alert,
-  Linking,
 } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
 
 // ----------------- ICON IMPORT ------------------------------------------
 import Feather from 'react-native-vector-icons/Feather';
@@ -22,13 +22,21 @@ import Pdf from 'react-native-pdf';
 
 // ----------------- CONTEXT IMPORT ------------------------------------------
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '../context/ThemeContext';
 
 const PdfViewer = () => {
   // --------------------------- NAVIGATION USES ------------------------------
   const navigation = useNavigation();
 
+  // ----------------------- THEME CONTEXT CHILD --------------------------------
+  const { theme } = useTheme();
+
   const route = useRoute();
   const pdfRef = useRef(null);
+  const pdfType = route.params?.pdfType || 'imported';
+
+  // ------------------------ THEME FOR READING THE PDF PAGE -----------------------
+  const [isDarken, setIsDarken] = useState(false);
 
   // --------------------------- STRICT STATE MACHINE ----------------------------
   const [loading, setLoading] = useState(true);
@@ -51,11 +59,6 @@ const PdfViewer = () => {
   // Generates a totally new native ID to stop Android from recycling broken views
   const [mountKey, setMountKey] = useState(Date.now().toString());
 
-  const currentPdf = useMemo(
-    () => route.params?.pdf || null,
-    [route.params?.pdf],
-  );
-
   // Reset states if a new file is opened
   useEffect(() => {
     setNeedsPassword(false);
@@ -65,6 +68,40 @@ const PdfViewer = () => {
     setMountKey(Date.now().toString());
     setLoading(true);
   }, [currentPdf?.path, currentPdf?.uri]);
+
+  // ---------------------------------- TOAST ANIMMATION --------------------------------------
+  // --- SECURITY TOAST ANIMATION LOGIC ---
+  const toastAnim = useRef(new Animated.Value(0)).current;
+
+  const showSecurityToast = () => {
+    // 1. Spring up into view
+    Animated.spring(toastAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+      friction: 8,
+      tension: 40,
+    }).start();
+
+    // 2. Wait 3.5 seconds, then fade/slide back down
+    setTimeout(() => {
+      Animated.timing(toastAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }, 5000);
+  };
+
+  const toastTranslateY = toastAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [150, 0], // Starts 150px below screen, slides up to 0
+  });
+  // ---------------------------------- TOAST ANIMMATION --------------------------------------
+
+  const currentPdf = useMemo(
+    () => route.params?.pdf || null,
+    [route.params?.pdf],
+  );
 
   // --------------------------- URI & SOURCE BUILDER ----------------------------
   const pdfSource = useMemo(() => {
@@ -152,6 +189,16 @@ const PdfViewer = () => {
     }, 150);
   };
 
+  // ------------------------------ TOGGLE THE THEME FOR PAGE ---------------------------------
+  const toggleTheme = () => {
+    try {
+      const newMode = !isDarken;
+      setIsDarken(newMode);
+    } catch (error) {
+      console.error('Error saving theme to AsyncStorage:', error);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeAreaCont} edges={['top', 'bottom']}>
       <StatusBar barStyle="light-content" backgroundColor="#8A58FF" />
@@ -196,12 +243,30 @@ const PdfViewer = () => {
               />
             </TouchableOpacity>
           )}
+          {!needsPassword && pdfType !== 'created' && (
+            <TouchableOpacity style={styles.iconBtn} onPress={toggleTheme}>
+              <Feather
+                name={isDarken ? 'moon' : 'sun'}
+                size={22}
+                color="#fff"
+              />
+            </TouchableOpacity>
+          )}
         </View>
-
         {/* ------------ PAGE NAVIGATION BAR -------------------  */}
         {!needsPassword && totalPages > 0 && isPagingEnabled && (
-          <View style={styles.pageNavBar}>
-            <Text style={styles.pageNavText}>Page </Text>
+          <View
+            style={[
+              styles.pageNavBar,
+              {
+                backgroundColor: theme.colors.border,
+                borderBottomColor: theme.colors.tabInactTint,
+              },
+            ]}
+          >
+            <Text style={[styles.pageNavText, { color: theme.colors.text }]}>
+              Page
+            </Text>
             <TextInput
               style={styles.pageInput}
               keyboardType="number-pad"
@@ -211,19 +276,33 @@ const PdfViewer = () => {
               returnKeyType="done"
               selectTextOnFocus
             />
-            <Text style={styles.pageNavText}> of {totalPages}</Text>
+            <Text style={[styles.pageNavText, { color: theme.colors.text }]}>
+              of {totalPages}
+            </Text>
           </View>
         )}
 
         {/* ------------ PDF CONTAINER -------------------  */}
         <View style={styles.pdfContainer}>
           {needsPassword ? (
-            <View style={styles.passwordContainer}>
+            <View
+              style={[
+                styles.passwordContainer,
+                { backgroundColor: theme.colors.background },
+              ]}
+            >
               <Feather name="lock" size={48} color="#8A58FF" />
-              <Text style={styles.passwordTitle}>
+              <Text
+                style={[styles.passwordTitle, { color: theme.colors.text }]}
+              >
                 This document is protected
               </Text>
-              <Text style={styles.passwordSubtitle}>
+              <Text
+                style={[
+                  styles.passwordSubtitle,
+                  { color: theme.colors.subText },
+                ]}
+              >
                 Please enter the password to view it.
               </Text>
 
@@ -262,9 +341,8 @@ const PdfViewer = () => {
               ref={pdfRef}
               key={mountKey}
               source={pdfSource}
-              // FIX: Bind the password directly to the prop as well, bypassing the source object cache
               password={appliedPassword !== '' ? appliedPassword : undefined}
-              style={styles.pdf}
+              style={[styles.pdf, { backgroundColor: theme.colors.background }]}
               enablePaging={isPagingEnabled}
               horizontal={false}
               fitPolicy={0}
@@ -272,7 +350,9 @@ const PdfViewer = () => {
               minScale={1.0}
               maxScale={4.0}
               spacing={12}
-              backgroundColor="#E6E6E6"
+              nightMode={isDarken} // Inverts colors instantly
+              enableScrollHandle={false} // Shows the native scrubber bubble
+              backgroundColor={{ backgroundColor: theme.colors.background }}
               onLoadComplete={numberOfPages => {
                 setTotalPages(numberOfPages);
                 setLoading(false);
@@ -281,12 +361,16 @@ const PdfViewer = () => {
                 setCurrentPage(page);
                 setPageInputText(page.toString());
               }}
+              onPageLongPress={(page, x, y) => {
+                Keyboard.dismiss();
+                showSecurityToast();
+              }}
               onError={handlePdfError}
-              renderActivityIndicator={() => null} // Disable native flash
+              renderActivityIndicator={() => null}
             />
           ) : null}
 
-          {/* Global Loading Overlay */}
+          {/* ------------------------- Global Loading Overlay -------------------------- */}
           {loading && !needsPassword ? (
             <View style={styles.loader}>
               <ActivityIndicator size="large" color="#0F172A" />
@@ -294,6 +378,33 @@ const PdfViewer = () => {
             </View>
           ) : null}
         </View>
+
+        {/* ------------ SECURITY TOAST OVERLAY -------------------  */}
+        <Animated.View
+          style={[
+            styles.toastContainer,
+            {
+              opacity: toastAnim,
+              transform: [{ translateY: toastTranslateY }],
+            },
+          ]}
+          pointerEvents="none"
+        >
+          {/* Swap icon based on type */}
+          <Feather
+            name={pdfType === 'imported' ? 'shield' : 'image'}
+            size={24}
+            color={pdfType === 'imported' ? '#F59E0B' : '#38BDF8'}
+            style={styles.toastIcon}
+          />
+
+          {/* Swap text based on type */}
+          <Text style={styles.toastText}>
+            {pdfType === 'imported'
+              ? "We don't allow you to Copy text, Edit pdf or click Link to open, as per security concerns."
+              : 'This PDF is made from Images, so there are no Page Dark Mode, Links or Text to click!'}
+          </Text>
+        </Animated.View>
       </View>
     </SafeAreaView>
   );
@@ -344,13 +455,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff',
-    borderBottomColor: '#d1d5db',
   },
   pageNavText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#334155',
   },
   pageInput: {
     height: 32,
@@ -375,7 +483,6 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingVertical: 12,
     paddingHorizontal: 12,
-    backgroundColor: '#E6E6E6',
   },
   loader: {
     ...StyleSheet.absoluteFillObject,
@@ -394,19 +501,16 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#E6E6E6',
   },
   passwordTitle: {
     fontSize: 20,
     marginTop: 15,
     fontWeight: 'bold',
-    color: '#0F172A',
   },
   passwordSubtitle: {
     fontSize: 14,
     marginTop: 5,
     marginBottom: 25,
-    color: '#64748B',
     textAlign: 'center',
   },
   passwordInputContainer: {
@@ -440,5 +544,33 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#FFF',
     fontWeight: 'bold',
+  },
+  // -- TOAST STYLES --
+  toastContainer: {
+    position: 'absolute',
+    bottom: 20, // Floats 40px above the bottom of the screen
+    left: 20,
+    right: 20,
+    backgroundColor: '#1E293B', // Dark slate background
+    borderRadius: 12,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 6,
+    zIndex: 999,
+  },
+  toastIcon: {
+    marginRight: 12,
+  },
+  toastText: {
+    flex: 1,
+    color: '#F8FAFC',
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '500',
   },
 });

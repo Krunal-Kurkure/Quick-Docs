@@ -56,6 +56,9 @@ const Setting = () => {
       ans: 'Open a PDF by clicking on it. Use the file icon 📄 to enable paging to move through pages, or enter a page number to jump directly on the specific page.',
     },
     {
+      ans: 'Use the Dark & Light mode icon in pdf Viewer to read pdf as per your choise mode',
+    },
+    {
       ans: 'Create a new PDF from gallery images or camera photos using the Library tab.',
     },
     {

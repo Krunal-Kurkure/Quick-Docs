@@ -34,7 +34,6 @@ export const ThemeProvider = ({ children }) => {
   // UseEffect watches isDarkMode and instantly updates the Native Nav Bar
   useEffect(() => {
     if (Platform.OS === 'android' && NavigationBarColor) {
-
       // NAVBAR COLOR
       const navBarColor = isDarkMode ? '#1E1E1E' : '#FFFFFF';
 

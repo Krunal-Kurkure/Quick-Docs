@@ -106,7 +106,7 @@ const Home = () => {
   // ---------------- PRESS TO OPEN PDF --------------------------------
   const onPdfPress = item => {
     if (actionMode === 'none') {
-      navigation.navigate('PdfViewer', { pdf: item });
+      navigation.navigate('PdfViewer', { pdf: item, pdfType: 'imported' });
       return;
     }
 

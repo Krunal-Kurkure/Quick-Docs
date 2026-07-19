@@ -16,7 +16,7 @@ const PdfCard = ({
   onLongPress,
 }) => {
   const isGrid = viewMode === 'grid';
-  const { theme } = useTheme();
+  const { theme, isDarkMode } = useTheme();
 
   return (
     // --------------------------- PDF CARD -----------------------------------
@@ -55,7 +55,7 @@ const PdfCard = ({
           <Feather
             name="file-text"
             size={isGrid ? 34 : 26}
-            color={selected ? '#EF4444' : '#000'}
+            color={selected && isDarkMode ? '#EF4444' : theme.colors.text}
           />
         )}
 
