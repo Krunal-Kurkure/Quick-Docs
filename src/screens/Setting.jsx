@@ -25,50 +25,6 @@ const Setting = () => {
   // ----------------------- THEME CONTEXT CHILD --------------------------------
   const { theme, toggleTheme } = useTheme();
 
-  const faqData = [
-    {
-      q: '1. How do I import a PDF?',
-      a: 'Use the share or open-with option from other apps and select this app to import the PDF in Easy Pdf app.',
-    },
-    {
-      q: '2. Can I create a PDF from images?',
-      a: 'Yes. Open the Library tab, tap the " + " button, pick gallery or camera images, arrange them, crop them, and create the PDF.',
-    },
-    {
-      q: '3. Can I rename or delete files?',
-      a: 'Yes. You can rename, share, and delete PDFs from inside the app.',
-    },
-    {
-      q: '4. Can I switch between grid and list view?',
-      a: 'Yes. The Opened Pdf & Library Tabs supports both grid and list layouts for better viewing.',
-    },
-    {
-      q: '5. Does the app store my personal data?',
-      a: 'No. The app is designed to work locally just for your device and does not collect personal data.',
-    },
-  ];
-
-  const useData = [
-    {
-      ans: 'Import PDF files from other apps directly into the app.',
-    },
-    {
-      ans: 'Open a PDF by clicking on it. Use the file icon 📄 to enable paging to move through pages, or enter a page number to jump directly on the specific page.',
-    },
-    {
-      ans: 'Use the Dark & Light mode icon in pdf Viewer to read pdf as per your choise mode',
-    },
-    {
-      ans: 'Create a new PDF from gallery images or camera photos using the Library tab.',
-    },
-    {
-      ans: 'Arrange, crop, and unselect images before generating the PDF.',
-    },
-    {
-      ans: 'Rename, share, delete, and view PDFs from the Opened Pdf Tab or Library Tab as per Pdfs.',
-    },
-  ];
-
   // ------------------------------- EXTARNAL LINK OPEN FUNCTION -------------------------------------
   const openExternalLink = async url => {
     try {
@@ -153,79 +109,6 @@ const Setting = () => {
               value={theme.isDarkMode}
             />
           </TouchableOpacity>
-        </View>
-
-        {/* How to Use Card */}
-        <View
-          style={[
-            styles.card,
-            {
-              backgroundColor: theme.colors.card,
-              borderColor: theme.colors.border,
-            },
-          ]}
-        >
-          <View style={styles.cardHeader}>
-            <View style={styles.cardTitleRow}>
-              <Feather
-                name="help-circle"
-                size={20}
-                color={theme.colors.primary}
-              />
-              <Text style={[styles.cardTitle, { color: theme.colors.text }]}>
-                How to use
-              </Text>
-            </View>
-          </View>
-
-          {useData.map((item, index) => (
-            <View key={index} style={styles.stepItem}>
-              <View
-                style={[
-                  styles.stepDot,
-                  { backgroundColor: theme.colors.primary },
-                ]}
-              />
-              <Text style={[styles.stepText, { color: theme.colors.subText }]}>
-                {item.ans}
-              </Text>
-            </View>
-          ))}
-        </View>
-
-        {/* FAQ Card */}
-        <View
-          style={[
-            styles.card,
-            {
-              backgroundColor: theme.colors.card,
-              borderColor: theme.colors.border,
-            },
-          ]}
-        >
-          <View style={styles.cardHeader}>
-            <View style={styles.cardTitleRow}>
-              <Feather
-                name="message-circle"
-                size={20}
-                color={theme.colors.primary}
-              />
-              <Text style={[styles.cardTitle, { color: theme.colors.text }]}>
-                FAQ's
-              </Text>
-            </View>
-          </View>
-
-          {faqData.map((item, index) => (
-            <View key={index} style={styles.faqItem}>
-              <Text style={[styles.faqQuestion, { color: theme.colors.text }]}>
-                {item.q}
-              </Text>
-              <Text style={[styles.faqAnswer, { color: theme.colors.subText }]}>
-                {item.a}
-              </Text>
-            </View>
-          ))}
         </View>
 
         {/* Terms and Conditions Card */}
@@ -334,7 +217,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   contentContainer: {
-    gap: 18,
+    gap: 15,
     paddingVertical: 15,
   },
   header: {
@@ -400,38 +283,6 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 16,
     fontWeight: '700',
-  },
-  stepItem: {
-    marginTop: 10,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  stepDot: {
-    width: 8,
-    height: 8,
-    marginTop: 7,
-    marginRight: 10,
-    borderRadius: 4,
-  },
-  stepText: {
-    flex: 1,
-    fontSize: 13,
-    lineHeight: 19,
-  },
-  faqItem: {
-    marginTop: 12,
-    paddingBottom: 12,
-    borderBottomColor: '#D8D8D8',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  faqQuestion: {
-    fontSize: 14,
-    marginBottom: 4,
-    fontWeight: '700',
-  },
-  faqAnswer: {
-    fontSize: 13,
-    lineHeight: 19,
   },
   termsText: {
     fontSize: 13,

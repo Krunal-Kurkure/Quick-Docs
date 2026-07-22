@@ -154,63 +154,6 @@ const Coffee = () => {
 
         <View
           style={[
-            styles.stepsCard,
-            {
-              backgroundColor: theme.colors.pdfBg,
-              borderWidth: isDarkMode ? 1 : 0,
-              borderColor: '#ffffff3d',
-            },
-          ]}
-        >
-          <Text style={[styles.sectionTitle, { color: textCol }]}>
-            How to Donate
-          </Text>
-
-          <View style={styles.stepRow}>
-            <View style={[styles.stepNumber, { backgroundColor: bulletCol }]}>
-              <Text style={styles.stepNumberText}>1</Text>
-            </View>
-            <View style={styles.stepTextBlock}>
-              <Text style={[styles.stepTitle, { color: textCol }]}>
-                Scan the QR code
-              </Text>
-              <Text style={[styles.stepDesc, { color: subTextCol }]}>
-                Use your preferred UPI app to open the payment screen.
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.stepRow}>
-            <View style={[styles.stepNumber, { backgroundColor: bulletCol }]}>
-              <Text style={styles.stepNumberText}>2</Text>
-            </View>
-            <View style={styles.stepTextBlock}>
-              <Text style={[styles.stepTitle, { color: textCol }]}>
-                Enter the amount
-              </Text>
-              <Text style={[styles.stepDesc, { color: subTextCol }]}>
-                Choose any amount you feel comfortable contributing.
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.stepRow}>
-            <View style={[styles.stepNumber, { backgroundColor: bulletCol }]}>
-              <Text style={styles.stepNumberText}>3</Text>
-            </View>
-            <View style={styles.stepTextBlock}>
-              <Text style={[styles.stepTitle, { color: textCol }]}>
-                Confirm and send
-              </Text>
-              <Text style={[styles.stepDesc, { color: subTextCol }]}>
-                Your support motivates ongoing updates and improvements.
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        <View
-          style={[
             styles.footerCard,
             {
               backgroundColor: bgCol,
@@ -362,44 +305,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 13,
     lineHeight: 16,
-  },
-  stepsCard: {
-    backgroundColor: '#FFF',
-    borderRadius: 24,
-    padding: 15,
-    marginBottom: 16,
-    elevation: 2,
-  },
-  stepRow: {
-    flexDirection: 'row',
-    marginTop: 14,
-  },
-  stepNumber: {
-    width: 30,
-    height: 30,
-    borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-    marginTop: 2,
-  },
-  stepNumberText: {
-    color: '#FFF',
-    fontSize: 14,
-    fontWeight: '800',
-  },
-  stepTextBlock: {
-    flex: 1,
-  },
-  stepTitle: {
-    fontSize: 15,
-    fontWeight: '800',
-  },
-  stepDesc: {
-    marginTop: 3,
-    fontSize: 13,
-    lineHeight: 16,
-    color: '#6F5E52',
   },
 
   footerCard: {
