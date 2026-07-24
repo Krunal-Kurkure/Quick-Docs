@@ -1,0 +1,29 @@
+diff --git a/node_modules/react-native-pell-rich-editor/src/RichEditor.js b/node_modules/react-native-pell-rich-editor/src/RichEditor.js
+index f194ac3..1c634be 100644
+--- a/node_modules/react-native-pell-rich-editor/src/RichEditor.js
++++ b/node_modules/react-native-pell-rich-editor/src/RichEditor.js
+@@ -18,7 +18,7 @@ export default class RichTextEditor extends Component {
+     pasteAsPlainText: false,
+     autoCapitalize: 'off',
+     defaultParagraphSeparator: 'div',
+-    editorInitializedCallback: () => {},
++    editorInitializedCallback: () => { },
+     initialHeight: 0,
+     dataDetectorTypes: ['none'],
+   };
+@@ -368,9 +368,13 @@ export default class RichTextEditor extends Component {
+    * @platform android
+    */
+   showAndroidKeyboard() {
+-    let that = this;
++    const that = this;
++
+     if (Platform.OS === 'android') {
+-      !that._keyOpen && that._input.focus();
++      if (!that._keyOpen && that._input?.focus) {
++        that._input.focus();
++      }
++
+       that.webviewBridge?.requestFocus?.();
+     }
+   }

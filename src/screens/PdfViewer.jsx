@@ -23,6 +23,7 @@ import Pdf from 'react-native-pdf';
 // ----------------- CONTEXT IMPORT ------------------------------------------
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
+import { exportPdfToFileManager } from '../services/pdfLibraryService';
 
 const PdfViewer = () => {
   // --------------------------- NAVIGATION USES ------------------------------
@@ -189,6 +190,39 @@ const PdfViewer = () => {
     }, 150);
   };
 
+// --------------------------- EXPORT / DOWNLOAD ----------------------------
+  const handleDownloadPdf = async () => {
+    if (!currentPdf || !currentPdf.path) {
+      Alert.alert('Error', 'No PDF file found to export.');
+      return;
+    }
+
+    try {
+      // Use the displayName or fileName from your currentPdf object. 
+      // If neither exists, fallback to a default name.
+      const exportName = currentPdf.displayName || currentPdf.fileName || 'Exported_Document';
+      
+      // --- AUTO-DETECT TARGET FOLDER ---
+      // If the path contains your internal library folder name, it's a Created PDF.
+      // Otherwise, it's an external file the user opened.
+      const isFromLibrary = currentPdf.path.includes('CreatedEasyPDF');
+      const targetFolder = isFromLibrary ? 'Created Library Pdfs' : 'Opended Pdfs';
+      
+      // Pass the raw path, the clean name, and the dynamically selected target folder
+      const result = await exportPdfToFileManager(currentPdf.path, exportName, targetFolder);
+
+      if (result && result.success) {
+        Alert.alert(
+          'Saved Successfully',
+          result.message + (result.path ? `\n\nLocation: ${result.path}` : '')
+        );
+      }
+    } catch (error) {
+      console.error('Download error:', error);
+      Alert.alert('Export Failed', 'Could not save the PDF to your device.');
+    }
+  };
+
   // ------------------------------ TOGGLE THE THEME FOR PAGE ---------------------------------
   const toggleTheme = () => {
     try {
@@ -238,16 +272,20 @@ const PdfViewer = () => {
             >
               <Feather
                 name={isPagingEnabled ? 'file-text' : 'book-open'}
-                size={22}
+                size={20}
                 color="#fff"
               />
             </TouchableOpacity>
           )}
+
+          <TouchableOpacity style={styles.iconBtn} onPress={handleDownloadPdf}>
+           <Feather name="download" size={20} color={theme.colors.text} />
+          </TouchableOpacity>
           {!needsPassword && pdfType !== 'created' && (
             <TouchableOpacity style={styles.iconBtn} onPress={toggleTheme}>
               <Feather
                 name={isDarken ? 'moon' : 'sun'}
-                size={22}
+                size={20}
                 color="#fff"
               />
             </TouchableOpacity>
@@ -348,7 +386,7 @@ const PdfViewer = () => {
               fitPolicy={0}
               scale={1.0}
               minScale={1.0}
-              maxScale={4.0}
+              maxScale={5.0}
               spacing={12}
               nightMode={isDarken} // Inverts colors instantly
               enableScrollHandle={false} // Shows the native scrubber bubble
@@ -421,7 +459,8 @@ const styles = StyleSheet.create({
   },
   header: {
     gap: 10,
-    paddingVertical: 15,
+        paddingTop: 12,
+    paddingBottom: 5,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 15,
@@ -443,7 +482,7 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 12,
-    paddingBottom: 5,
+    paddingBottom: 6,
     fontWeight: '500',
     color: '#ffffffb1',
   },

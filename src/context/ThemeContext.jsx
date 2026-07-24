@@ -73,6 +73,7 @@ export const ThemeProvider = ({ children }) => {
       tabActTint: isDarkMode ? '#ffffffda' : '#8A58FF',
       tabInactTint: isDarkMode ? '#5e5e5e' : '#b5b5b5',
       pdfBg: isDarkMode ? '#323232' : '#ffffff',
+      dearBg:  isDarkMode ? '#252525' : '#ededed',
     },
   };
 

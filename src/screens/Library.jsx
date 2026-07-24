@@ -251,7 +251,7 @@ const Library = () => {
       >
         <View style={styles.mainHeading}>
           <Text style={[styles.mainHeadingText, { color: theme.colors.text }]}>
-            Created PDF's
+            Created Image To PDF
           </Text>
 
           <View style={styles.mainHeadingBtns}>
@@ -275,6 +275,7 @@ const Library = () => {
             </View>
           ) : pdfs.length === 0 ? (
             <EmptyState
+              iconName={"folder"}
               title="No Created Pdf"
               subtitle='Create Pdf using "+" button, pick images from camera or gallery to create a Pdf.'
             />

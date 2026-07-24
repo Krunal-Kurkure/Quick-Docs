@@ -26,6 +26,9 @@ import PdfViewer from './src/screens/PdfViewer';
 import CreatePdf from './src/screens/CreatePdf';
 import CropImage from './src/screens/CropImage';
 import Coffee from './src/screens/Coffee';
+import CoverLetterEditor from './src/screens/cover_letter/CoverLetterEditor';
+import CoverLetterViewer from './src/screens/cover_letter/CoverLetterViewer';
+import CoverLetterScreen from './src/screens/cover_letter/CoverLetterScreen';
 // --------------------------- CONTEXT IMPORT -----------------------------------
 import {
   OpenWithPdfProvider,
@@ -35,7 +38,6 @@ import { PdfProvider } from './src/context/PdfContext';
 import { DraftPdfProvider } from './src/context/DraftPdfContext';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 
-
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -43,8 +45,9 @@ export const navigationRef = createNavigationContainerRef();
 
 // 1. Map route names to icon names to eliminate if/else blocks
 const TAB_ICONS = {
-  Home: 'file-text',
+  Home: 'book-open',
   Library: 'folder',
+  CoverLetter: 'file-text',
   Setting: 'settings',
 };
 
@@ -82,6 +85,11 @@ function MainTabs() {
         name="Library"
         component={Library}
         options={{ title: 'Library' }}
+      />
+      <Tab.Screen
+        name="CoverLetter"
+        component={CoverLetterScreen}
+        options={{ title: 'Cover Letter' }}
       />
       <Tab.Screen
         name="Setting"
@@ -131,7 +139,16 @@ export default function App() {
                   <Stack.Screen name="PdfViewer" component={PdfViewer} />
                   <Stack.Screen name="CreatePdf" component={CreatePdf} />
                   <Stack.Screen name="CropImage" component={CropImage} />
-                   <Stack.Screen name="Coffee" component={Coffee} />
+                  <Stack.Screen name="Coffee" component={Coffee} />
+
+                  <Stack.Screen
+                    name="CoverLetterEditor"
+                    component={CoverLetterEditor}
+                  />
+                  <Stack.Screen
+                    name="CoverLetterViewer"
+                    component={CoverLetterViewer}
+                  />
                 </Stack.Navigator>
               </NavigationContainer>
             </DraftPdfProvider>

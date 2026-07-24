@@ -286,6 +286,7 @@ const Home = () => {
             </View>
           ) : openWithPdfs.length === 0 ? (
             <EmptyState
+            iconName={"book-open"}
               title="No Opened Pdf"
               subtitle="Open Pdf using apps like File Manager, Gmail, Google Drive, Crome, WhatsApp, Telegram."
             />

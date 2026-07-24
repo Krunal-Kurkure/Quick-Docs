@@ -1,6 +1,6 @@
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
-import { NativeModules } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 
 // ------------------- FILE UTILS IMPORT --------------------------------
 import {
@@ -141,6 +141,61 @@ export const savePdfToLibrary = async (sourcePath, preferredName = 'PDF') => {
   }
 
   return destPath;
+};
+
+// ---------------- EXPORT PDF TO DEVICE PUBLIC FILES (DOWNLOADS) ------------------------------
+export const exportPdfToFileManager = async (sourcePath, fileName = 'Document', subFolder = 'Created Library Pdfs') => {
+  try {
+    const cleanSource = stripFileUri(sourcePath);
+    const safeName = sanitizeFileName(fileName);
+    const fullFileName = `${safeName}.pdf`;
+
+    if (Platform.OS === 'android') {
+      const downloadsDir = RNFS.DownloadDirectoryPath;
+      
+      // Define the nested target directory based on the parameter
+      const targetDir = `${downloadsDir}/Easy Pdf/${subFolder}`;
+
+      // Ensure both the parent EasyPdf and the subFolder exist
+      await ensureDir(`${downloadsDir}/Easy Pdf`);
+      await ensureDir(targetDir);
+
+      let destPath = `${targetDir}/${fullFileName}`;
+
+      // Prevent overwriting existing files
+      let index = 1;
+      while (await RNFS.exists(destPath)) {
+        destPath = `${targetDir}/${safeName} (${index}).pdf`;
+        index += 1;
+      }
+
+      await RNFS.copyFile(cleanSource, destPath);
+
+      // Force Android to scan the new file so it appears in File Manager apps immediately
+      if (RNFS.scanFile) {
+        await RNFS.scanFile(destPath);
+      }
+
+      return { success: true, path: destPath, message: `Saved to Downloads/Easy Pdf/${subFolder}` };
+      
+    } else {
+      // iOS: Trigger Native "Save to Files" dialog
+      await Share.open({
+        url: `file://${cleanSource}`,
+        type: 'application/pdf',
+        title: fullFileName,
+        saveToFiles: true,
+      });
+      
+      return { success: true, path: null, message: 'Saved to Files.' };
+    }
+  } catch (error) {
+    if (error.message !== 'User did not share') {
+      console.error('Export error:', error);
+      throw error;
+    }
+    return { success: false, cancelled: true };
+  }
 };
 
 // ---------------------------- RENAME PDF FILE ------------------------------------

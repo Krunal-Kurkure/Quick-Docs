@@ -7,13 +7,13 @@ import { useTheme } from '../context/ThemeContext';
 // --------------------------- ICON IMPORT -----------------------------------
 import Feather from 'react-native-vector-icons/Feather';
 
-const EmptyState = ({ title, subtitle }) => {
+const EmptyState = ({ title, subtitle,iconName }) => {
   // --------------------------- THEME CHILD -----------------------------------
   const { theme } = useTheme();
 
   return (
     <View style={styles.container}>
-      <Feather name="file-text" size={44} color={theme.colors.text} />
+      <Feather name={iconName} size={44} color={theme.colors.text} />
       <Text style={[styles.title, { color: theme.colors.text }]}>{title}</Text>
       <Text style={[styles.subtitle, { color: theme.colors.subText }]}>
         {subtitle}
